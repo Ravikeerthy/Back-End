@@ -1,15 +1,17 @@
 import savingGoal from "../models/savinggoal.schema.js";
-import moment from "moment";
+// import moment from "moment";
 
 export const createNewSavingGoal = async (req, res) => {
   try {
     const { savingAmount, targetDate, currentAmount, userId } = req.body;
 
-    if (!moment(targetDate, "YYYY-MM-DD", true).isValid()) {
-      return res
-        .status(400)
-        .json({ message: "Invalid target date format (YYYY-MM-DD)" });
-    }
+    console.log("req Body",req.body);
+    
+    // if (!moment(targetDate, "YYYY-MM-DD", true).isValid()) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Invalid target date format (YYYY-MM-DD)" });
+    // }
     const newSaving = new savingGoal({
       savingAmount,
       targetDate: new Date(targetDate).toISOString(),
