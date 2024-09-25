@@ -16,7 +16,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors(
   {
-    origin:"https://finance-and-expense-tracker.netlify.app/",
+    origin:"https://finance-and-expense-tracker.netlify.app",
     credentials:true
   }
 ));
