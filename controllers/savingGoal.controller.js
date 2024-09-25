@@ -3,7 +3,7 @@ import savingGoal from "../models/savinggoal.schema.js";
 
 export const createNewSavingGoal = async (req, res) => {
   try {
-    const { savingAmount, targetDate, currentAmount, userId } = req.body;
+    const { savingAmount, targetDate, source, userId } = req.body;
 
     console.log("req Body",req.body);
     
@@ -15,7 +15,7 @@ export const createNewSavingGoal = async (req, res) => {
     const newSaving = new savingGoal({
       savingAmount,
       targetDate: new Date(targetDate).toISOString(),
-      currentAmount,
+      source,
       userId,
     });
     console.log("New Saving", newSaving);
