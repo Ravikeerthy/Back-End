@@ -14,9 +14,15 @@ import "./jobs/cornjobs.js";
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors());
+
 app.use(express.json());
 
+const corsOptions = {
+  origin: ['http://example.com', 'http://another-domain.com'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+};
+app.use(cors(corsOptions));
 const port = process.env.PORT;
 
 app.get("/", (req, res) => {
