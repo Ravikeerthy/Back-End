@@ -4,10 +4,10 @@ const incomeSchema = mongoose.Schema({
   incomeAmount: { type: Number, required: true },
   incomeSource: { type: String, required: true },
   date: { type: Date, default: Date.now },
+  month: { type: String, required: true },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
   },
   isRecurring: { type: Boolean, default: false },
   frequency: {

@@ -4,10 +4,12 @@ import User from "../models/user.schema.js";
 dotenv.config();
 
 const authMiddleWare = async (req, res, next) => {
-  const token = req.cookies.token;
+  console.log("Cookie received", req.cookies);
+  
+  const token = req.cookies?.token;
 
   if (!token) {
-    return res.status(401).json({ message: "Authorization header is missing" });
+    return res.status(401).json({ message: "Authorization token is missing" });
   }
 
   try {

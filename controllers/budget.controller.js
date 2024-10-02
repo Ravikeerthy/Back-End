@@ -2,13 +2,15 @@ import Budget from "../models/budget.schema.js";
 
 export const createNewBudget = async (req, res) => {
   try {
-    const { budgetAmount, budgetCategory, budgetPeriod, userId } = req.body;
+    const { budgetAmount, budgetCategory, budgetPeriod } = req.body;
+
+    const userId = req.user._id;
 
     const newBudget = new Budget({
       budgetAmount,
       budgetCategory,
       budgetPeriod,
-      userId,
+     
     });
 
     await newBudget.save();

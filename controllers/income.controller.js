@@ -1,37 +1,37 @@
 import IncomeDetails from "../models/income.schema.js";
-import { checkAndCreateRecurringTranscation } from "../services/recurringTransactions.js";
+import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
 
 export const createIncomeDetails = async (req, res) => {
   try {
-    const { incomeAmount, incomeSource, date, userId, isRecurring, frequency } =
+    const { incomeAmount, incomeSource, date, month, isRecurring, frequency } =
       req.body;
+    console.log("req.body", req.body);
+
+    const userId = req.user._id;
 
     const newIncomeAmt = new IncomeDetails({
       incomeAmount,
       incomeSource,
       date,
-      userId,
+      month,
       isRecurring,
       frequency,
+      userId,
     });
     await newIncomeAmt.save();
+    console.log("New Income Amount", newIncomeAmt);
 
-    if (isRecurring) {
-      await checkAndCreateRecurringTranscation(newIncomeAmt);
-      await createNewNotification(
-        userId,
-        "Recurring income has been added successfully."
-      );
-    } else {
-      await createNewNotification(
-        userId,
-        "Income details successfully created."
-      );
-    }
+    const notificationMessage = isRecurring
+      ? "Recurring income has been added successfully."
+      : "Income details successfully created.";
+
+    await createNewNotification(userId, notificationMessage);
 
     res.status(200).json({ message: "Income Details Successfully created." });
   } catch (error) {
+    console.log("Error creating income:", error);
+
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -43,12 +43,11 @@ export const getAllIncome = async (req, res) => {
     const limitNumber = parseInt(limit);
 
     const userId = req.user._id;
-    await checkAndCreateRecurringTranscation(userId);
-    const totalItems = await IncomeDetails.countDocuments({userId});
-    const allIncomeDetails = await IncomeDetails.find({userId})
+    await check_CreateRecurringTransaction(userId);
+    const totalItems = await IncomeDetails.countDocuments({ userId });
+    const allIncomeDetails = await IncomeDetails.find({ userId })
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
-
 
     res.status(200).json({
       data: allIncomeDetails,
@@ -95,7 +94,7 @@ export const getIncomeByUserId = async (req, res) => {
 
 export const updateUserIncome = async (req, res) => {
   try {
-    const { incomeAmount, incomeSource, date, isRecurring, frequency } =
+    const { incomeAmount, incomeSource, date, month, isRecurring, frequency } =
       req.body;
     const { id } = req.params;
 
@@ -106,7 +105,16 @@ export const updateUserIncome = async (req, res) => {
     }
     const updatedIncome = await IncomeDetails.findByIdAndUpdate(
       id,
-      { $set: { incomeAmount, incomeSource, date, isRecurring, frequency } },
+      {
+        $set: {
+          incomeAmount,
+          incomeSource,
+          date,
+          month,
+          isRecurring,
+          frequency,
+        },
+      },
       { new: true, runValidators: true }
     );
 
@@ -119,7 +127,7 @@ export const updateUserIncome = async (req, res) => {
     }
 
     if (isRecurring) {
-      await checkAndCreateRecurringTranscation(updatedIncome);
+      await check_CreateRecurringTransaction(updatedIncome);
       await createNewNotification(
         updatedIncome.userId,
         "Recurring income has been updated successfully."
@@ -168,3 +176,39 @@ export const deleteIncomeDetails = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+export const aggregateMonthlyIncome = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Aggregate income data by month
+    const monthlyIncome = await IncomeDetails.aggregate([
+      {
+        $match: { userId: userId } 
+      },
+      {
+        $group: {
+          _id: { $month: "$date" }, 
+          totalIncome: { $sum: "$incomeAmount" } 
+        }
+      },
+      {
+        $sort: { _id: 1 } 
+      }
+    ]);
+
+    
+    const monthlyData = Array(12).fill(0); 
+
+    
+    monthlyIncome.forEach(item => {
+      monthlyData[item._id - 1] = item.totalIncome; 
+    });
+
+    res.status(200).json({ monthlyIncome: monthlyData });
+  } catch (error) {
+    console.error("Error aggregating monthly income:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+

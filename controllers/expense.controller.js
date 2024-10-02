@@ -1,5 +1,5 @@
 import ExpenseDetails from "../models/expense.schema.js";
-import { checkAndCreateRecurringTranscation } from "../services/recurringTransactions.js";
+import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
 
 export const createExpense = async (req, res) => {
@@ -9,17 +9,22 @@ export const createExpense = async (req, res) => {
       expenseCategory,
       expenseDescription,
       date,
-      userId,
+
       isRecurring,
       frequency,
     } = req.body;
+    console.log("Expense Payloads: ", req.body);
+    
+    const userId = req.user._id;
+    console.log("expense UserId: ", userId);
+    
 
     const newExpense = new ExpenseDetails({
       expenseAmount,
       expenseCategory,
       expenseDescription,
       date,
-      userId,
+
       isRecurring,
       frequency,
     });
@@ -28,7 +33,7 @@ export const createExpense = async (req, res) => {
     await newExpense.save();
 
     if (isRecurring) {
-      await checkAndCreateRecurringTranscation(newExpense);
+      await check_CreateRecurringTransaction(newExpense);
       await createNewNotification(
         userId,
         `A recurring expense of ${expenseAmount} has been created.`
@@ -146,7 +151,7 @@ export const updateExpense = async (req, res) => {
     }
 
     if (isRecurring) {
-      await checkAndCreateRecurringTranscation(updatedExpense);
+      await check_CreateRecurringTransaction(updatedExpense);
       await createNewNotification(
         updatedExpense.userId,
         `A recurring expense of ${expenseAmount} has been created.`

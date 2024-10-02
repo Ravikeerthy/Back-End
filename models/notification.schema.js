@@ -12,6 +12,15 @@ const notificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+notificationSchema.statics.markAsRead = async function (notificationId) {
+  return this.updateOne({ _id: notificationId }, { $set: { read: true } });
+};
+
+
+notificationSchema.statics.getUnreadNotifications = async function (userId) {
+  return this.find({ userId, read: false });
+};
+
 
 const Notification = mongoose.model("Notification", notificationSchema);
 

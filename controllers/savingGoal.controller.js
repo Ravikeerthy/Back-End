@@ -1,5 +1,5 @@
 import savingGoal from "../models/savinggoal.schema.js";
-// import moment from "moment";
+
 
 export const createNewSavingGoal = async (req, res) => {
   try {
@@ -7,12 +7,7 @@ export const createNewSavingGoal = async (req, res) => {
 
     console.log("req Body",req.body);
     
-    // if (!moment(targetDate, "YYYY-MM-DD", true).isValid()) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Invalid target date format (YYYY-MM-DD)" });
-    // }
-    const newSaving = new savingGoal({
+     const newSaving = new savingGoal({
       savingAmount,
       targetDate: new Date(targetDate).toISOString(),
       source,
@@ -46,7 +41,7 @@ export const getAllSavingGoals = async (req, res) => {
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
 
-    const totalItems = await savingGoals.countDocuments({ userId });
+    const totalItems = await savingGoal.countDocuments({ userId });
 
     res.status(200).json({
       data: savingGoals,
@@ -61,8 +56,8 @@ export const getAllSavingGoals = async (req, res) => {
 
 export const getAllSavingGoalsById = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const savingGoalId = await savingGoal.findOne({ userId });
+    const savingGoalId = req.params.id;
+    const savingGoals = await savingGoal.findOne({ userId });
     console.log(savingGoalId);
 
     if (!savingGoalId) {
@@ -70,7 +65,7 @@ export const getAllSavingGoalsById = async (req, res) => {
     }
     res
       .status(200)
-      .json({ message: "Saving goal retrieved successfully", savingGoalId });
+      .json({ message: "Saving goal retrieved successfully", savingGoals });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch saving goals" });
   }
@@ -120,9 +115,9 @@ export const updateSavingGoals = async (req, res) => {
 export const deleteSavingGoal = async (req, res) => {
   try {
     const deleteId = req.params.id;
-    const deletedSavingGoal = await savingGoal.findByIdAndDelete({
+    const deletedSavingGoal = await savingGoal.findByIdAndDelete(
       deleteId,
-    });
+    );
 
     if (!deletedSavingGoal) {
       return res.status(400).json({ message: "Saving goal is not found" });

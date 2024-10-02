@@ -3,12 +3,11 @@ import mongoose from "mongoose";
 const userExpense = mongoose.Schema({
   expenseAmount: { type: Number, required: true },
   expenseCategory: { type: String, required: true },
-  expenseDescription: String,
+  expenseDescription: { type: String },
   date: { type: Date, default: Date.now },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
   },
   isRecurring: { type: Boolean, default: false },
   frequency: {
@@ -20,6 +19,6 @@ const userExpense = mongoose.Schema({
   },
 });
 
-const ExpenseDetails = mongoose.model("expenseDetails", userExpense);
+const ExpenseDetail = mongoose.model("expenseDetail", userExpense);
 
-export default ExpenseDetails;
+export default ExpenseDetail;

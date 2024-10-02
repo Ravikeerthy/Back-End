@@ -1,8 +1,8 @@
 import IncomeDetails from "../models/income.schema.js";
 import ExpenseDetails from "../models/expense.schema.js";
 
-const calculateNextDate = (prevDate, frequency) => {
-  const date = new Date(prevDate);
+const calculateNextDate = (lastDate, frequency) => {
+  const date = new Date(lastDate);
   switch (frequency) {
     case "daily":
       date.setDate(date.getDate() + 1);
@@ -23,7 +23,7 @@ const calculateNextDate = (prevDate, frequency) => {
 };
 
 // Function to check and create recurring transactions for a given user
-const checkAndCreateRecurringTranscation = async (userId) => {
+const check_CreateRecurringTransaction = async (userId) => {
   try {
     const currentDate = new Date();
 
@@ -36,7 +36,7 @@ const checkAndCreateRecurringTranscation = async (userId) => {
       isRecurring: true,
     });
 
-    for (const income of recurringIncome) {
+    const incomePromises = recurringIncome.map(async (income) => {
       const nextDate = calculateNextDate(income.date, income.frequency);
 
       if (nextDate <= currentDate) {
@@ -50,28 +50,36 @@ const checkAndCreateRecurringTranscation = async (userId) => {
           const newIncome = { ...income._doc, date: nextDate };
           delete newIncome._id;
           await IncomeDetails.create(newIncome);
+          // Optional: Add a notification here
         }
       }
-    }
+    });
 
-    for (const expense of recurringExpense) {
+    const expensePromises = recurringExpense.map(async (expense) => {
       const nextDate = calculateNextDate(expense.date, expense.frequency);
 
       if (nextDate <= currentDate) {
-        const existingexpense = await ExpenseDetails.findOne({
-          userId, date:nextDate, amount:expense.amount
+        const existingExpense = await ExpenseDetails.findOne({
+          userId,
+          date: nextDate,
+          amount: expense.amount,
         });
-        if(!existingexpense){
-          const newExpense = {...expense._doc, date:nextDate};
+
+        if (!existingExpense) {
+          const newExpense = { ...expense._doc, date: nextDate };
           delete newExpense._id;
           await ExpenseDetails.create(newExpense);
+          // Optional: Add a notification here
         }
-       
       }
-    }
+    });
+
+    // Execute all promises in parallel
+    await Promise.all([...incomePromises, ...expensePromises]);
+    
   } catch (error) {
-    console.error("Error in checking or creating recurring: ", error);
+    console.error(`Error in checking or creating recurring transactions for user ${userId}:`, error);
   }
 };
 
-export { checkAndCreateRecurringTranscation, calculateNextDate };
+export { check_CreateRecurringTransaction, calculateNextDate };

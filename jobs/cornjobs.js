@@ -1,13 +1,19 @@
 import corn from "node-cron";
+import User from "../models/user.schema.js";
+import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 
-import triggerRecurringTransactions from "../services/triggerRecurringTransactions.js";
 
-// Schedule the job to run daily at midnight
-corn.schedule("0 0 * * *", async () => {
+corn.schedule("* * * * *", async () => {
   try {
-    await triggerRecurringTransactions();
+    const users = await User.find();
 
-    console.log("Scheduled job for recurring transactions executed");
+    for (const user of users) {
+      await check_CreateRecurringTransaction(user._id);
+    }
+
+    console.log(
+      "Scheduled job for recurring transactions executed for all users"
+    );
   } catch (error) {
     console.error("Error in scheduled job:", error);
   }

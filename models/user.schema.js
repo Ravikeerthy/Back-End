@@ -11,9 +11,8 @@ const userSchema = mongoose.Schema({
   tokens: [{
     token:{type:String, required:true}
   }],
-  createdAt : { type:Date, default:Date.now},
-  updatedAt : {type:Date, default:Date.now}
-});
+  
+}, { timestamps: true });
 
 userSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
