@@ -1,5 +1,8 @@
 import IncomeDetails from "../models/income.schema.js";
 import ExpenseDetails from "../models/expense.schema.js";
+import moment from "moment";
+
+const months = moment.months();
 
 const calculateNextDate = (lastDate, frequency) => {
   const date = new Date(lastDate);
@@ -47,10 +50,13 @@ const check_CreateRecurringTransaction = async (userId) => {
         });
 
         if (!existingIncome) {
-          const newIncome = { ...income._doc, date: nextDate };
+          const newIncome = {
+            ...income._doc,
+            date: nextDate,
+            month: nextDate.getMonth() + 1,
+          };
           delete newIncome._id;
           await IncomeDetails.create(newIncome);
-          // Optional: Add a notification here
         }
       }
     });
@@ -66,19 +72,24 @@ const check_CreateRecurringTransaction = async (userId) => {
         });
 
         if (!existingExpense) {
-          const newExpense = { ...expense._doc, date: nextDate };
+          const newExpense = {
+            ...expense._doc,
+            date: nextDate,
+            month: nextDate.getMonth() + 1,
+          };
           delete newExpense._id;
           await ExpenseDetails.create(newExpense);
-          // Optional: Add a notification here
         }
       }
     });
 
     // Execute all promises in parallel
     await Promise.all([...incomePromises, ...expensePromises]);
-    
   } catch (error) {
-    console.error(`Error in checking or creating recurring transactions for user ${userId}:`, error);
+    console.error(
+      `Error in checking or creating recurring transactions for user ${userId}:`,
+      error
+    );
   }
 };
 

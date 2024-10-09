@@ -43,10 +43,10 @@ export const getAllBudget = async (req, res) => {
 
 export const getBudgetById = async (req, res) => {
   try {
-    const { id } = req.params;
-    console.log("id", id);
+    const { userId } = req.params;
+    console.log("id", userId);
 
-    const BudgetById = await Budget.findById(id);
+    const BudgetById = await Budget.find({userId});
     console.log("BudgetById", BudgetById);
 
     if (!BudgetById) {
@@ -63,9 +63,9 @@ export const getBudgetByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
     const userBudget = await Budget.find({ userId });
-    if (!userBudget || userBudget.length === 0) {
-      return res.status(400).json({ message: "User budgets not found" });
-    }
+    // if (!userBudget || userBudget.length === 0) {
+    //   return res.status(400).json({ message: "User budgets not found" });
+    // }
     res
       .status(200)
       .json({ message: "User budgets retrieved successfully", userBudget });

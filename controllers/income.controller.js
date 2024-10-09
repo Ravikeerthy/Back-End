@@ -1,4 +1,5 @@
 import IncomeDetails from "../models/income.schema.js";
+import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
 
@@ -19,8 +20,10 @@ export const createIncomeDetails = async (req, res) => {
       frequency,
       userId,
     });
-    await newIncomeAmt.save();
+    const savedIncome = await newIncomeAmt.save();
     console.log("New Income Amount", newIncomeAmt);
+
+    notifyClientsAboutTransaction(savedIncome, userId);
 
     const notificationMessage = isRecurring
       ? "Recurring income has been added successfully."
@@ -79,6 +82,7 @@ export const getIncomeById = async (req, res) => {
 export const getIncomeByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
+    console.log("Received userId:", userId);
 
     const userIncome = await IncomeDetails.find({ userId });
 
@@ -86,7 +90,7 @@ export const getIncomeByUserId = async (req, res) => {
       return res.status(400).json({ message: "User Id is not found" });
     }
 
-    res.status(200).json({ userIncome });
+    res.status(200).json({ message: "User Income retrieved successfully" ,userIncome });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -125,6 +129,8 @@ export const updateUserIncome = async (req, res) => {
 
       return res.status(400).json({ message: "Income details not found" });
     }
+
+    notifyClientsAboutTransaction(updatedIncome);
 
     if (isRecurring) {
       await check_CreateRecurringTransaction(updatedIncome);
@@ -165,6 +171,12 @@ export const deleteIncomeDetails = async (req, res) => {
         .status(400)
         .json({ message: "Income details could not be deleted" });
     }
+
+    notifyClientsAboutTransaction({
+      message: "Income details have been deleted successfully.",
+      id,
+    });
+
     await createNewNotification(
       incomeDetails.userId,
       "Income details have been deleted successfully."
@@ -184,25 +196,23 @@ export const aggregateMonthlyIncome = async (req, res) => {
     // Aggregate income data by month
     const monthlyIncome = await IncomeDetails.aggregate([
       {
-        $match: { userId: userId } 
+        $match: { userId: userId },
       },
       {
         $group: {
-          _id: { $month: "$date" }, 
-          totalIncome: { $sum: "$incomeAmount" } 
-        }
+          _id: { $month: "$date" },
+          totalIncome: { $sum: "$incomeAmount" },
+        },
       },
       {
-        $sort: { _id: 1 } 
-      }
+        $sort: { _id: 1 },
+      },
     ]);
 
-    
-    const monthlyData = Array(12).fill(0); 
+    const monthlyData = Array(12).fill(0);
 
-    
-    monthlyIncome.forEach(item => {
-      monthlyData[item._id - 1] = item.totalIncome; 
+    monthlyIncome.forEach((item) => {
+      monthlyData[item._id - 1] = item.totalIncome;
     });
 
     res.status(200).json({ monthlyIncome: monthlyData });
@@ -211,4 +221,3 @@ export const aggregateMonthlyIncome = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
-

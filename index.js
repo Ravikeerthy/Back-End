@@ -14,6 +14,10 @@ import cookieParser from "cookie-parser";
 import generate_router from "./routers/generater.router.js";
 import recurringRouter from "./routers/recurring.router.js";
 import recurTrans from "./routers/recuringtrans.router.js";
+import events from "events";
+import http from "http";
+import path from "path";
+import { initializeSocket } from "./realtime/realtimeSocket.js";
 
 dotenv.config();
 
@@ -30,6 +34,11 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser());
 
+events.EventEmitter.defaultMaxListeners = 30;
+
+const server = http.createServer(app);
+initializeSocket(server);
+
 const port = process.env.PORT;
 
 app.get("/", (req, res) => {
@@ -45,6 +54,14 @@ app.use("/notification", notificationRouter);
 app.use("/generatereport", generate_router);
 app.use("/recurring", recurringRouter);
 app.use("/createrecurring", recurTrans);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 dbConnect();
 

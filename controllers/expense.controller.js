@@ -9,24 +9,26 @@ export const createExpense = async (req, res) => {
       expenseCategory,
       expenseDescription,
       date,
-
       isRecurring,
       frequency,
     } = req.body;
     console.log("Expense Payloads: ", req.body);
-    
+
     const userId = req.user._id;
     console.log("expense UserId: ", userId);
-    
+
+    const expenseDate = new Date(date);
+    const month = expenseDate.getMonth()+1;
 
     const newExpense = new ExpenseDetails({
       expenseAmount,
       expenseCategory,
       expenseDescription,
-      date,
-
+      date: expenseDate,
+      month,
       isRecurring,
       frequency,
+      userId
     });
 
     console.log(newExpense);
@@ -47,7 +49,7 @@ export const createExpense = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Expense details is created successfully" });
+      .json({ message: "Expense details is created successfully",  expense: newExpense });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -87,11 +89,9 @@ export const getExpenseByUserId = async (req, res) => {
 
     console.log(expenseByUserId);
 
-    if (!expenseByUserId || expenseByUserId.length === 0) {
-      return res.status(400).json({ message: "User is not found" });
-    }
+   
 
-    res.status(200).json({ message: expenseByUserId });
+    res.status(200).json({ message: "User Expense retrieved successfully", expenseByUserId });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });

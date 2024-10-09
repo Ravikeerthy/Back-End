@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import User from "../models/user.schema.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
+import triggerRecurringTransactions from "../services/triggerRecurringTransactions.js";
 
 let cronJob;
 
@@ -27,10 +28,8 @@ export const startCron = (req, res) => {
 
   cronJob = cron.schedule("0 0 * * *", async () => {
     try {
-      const users = await User.find();
-      for (const user of users) {
-        await check_CreateRecurringTransaction(user._id);
-      }
+     await triggerRecurringTransactions();
+     
       console.log("Scheduled job for recurring transactions executed for all users");
     } catch (error) {
       console.error("Error in scheduled cron job:", error);

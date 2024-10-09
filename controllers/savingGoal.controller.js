@@ -1,13 +1,13 @@
 import savingGoal from "../models/savinggoal.schema.js";
-
+import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
 
 export const createNewSavingGoal = async (req, res) => {
   try {
     const { savingAmount, targetDate, source, userId } = req.body;
 
-    console.log("req Body",req.body);
-    
-     const newSaving = new savingGoal({
+    console.log("req Body", req.body);
+
+    const newSaving = new savingGoal({
       savingAmount,
       targetDate: new Date(targetDate).toISOString(),
       source,
@@ -15,7 +15,9 @@ export const createNewSavingGoal = async (req, res) => {
     });
     console.log("New Saving", newSaving);
 
-    await newSaving.save();
+    const savedSavingGoal = await newSaving.save();
+
+    notifyClientsAboutTransaction(savedSavingGoal);
 
     res.status(200).json({
       message: "Saving Goal is created successfully",
@@ -56,11 +58,11 @@ export const getAllSavingGoals = async (req, res) => {
 
 export const getAllSavingGoalsById = async (req, res) => {
   try {
-    const savingGoalId = req.params.id;
-    const savingGoals = await savingGoal.findOne({ userId });
-    console.log(savingGoalId);
+    const userId = req.params.id;
+    const savingGoals = await savingGoal.find({ userId });
+    console.log(userId);
 
-    if (!savingGoalId) {
+    if (!savingGoals) {
       return res.status(400).json({ message: "Saving Goal is not found" });
     }
     res
@@ -81,7 +83,9 @@ export const getAllSavingGoal = async (req, res) => {
       return res.status(400).json({ message: "Saving Goal is not found" });
     }
 
-    res.status(200).json({ message: "Saving Goal retrieved successfully", result });
+    res
+      .status(200)
+      .json({ message: "Saving Goal retrieved successfully", result });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -102,6 +106,7 @@ export const updateSavingGoals = async (req, res) => {
     if (!updatedSavingGoal) {
       return res.status(400).json({ message: "Saving goal not found" });
     }
+    notifyClientsAboutTransaction(updatedSavingGoal);
 
     res.status(200).json({
       message: "Saving Goal is updated successfully",
@@ -115,13 +120,15 @@ export const updateSavingGoals = async (req, res) => {
 export const deleteSavingGoal = async (req, res) => {
   try {
     const deleteId = req.params.id;
-    const deletedSavingGoal = await savingGoal.findByIdAndDelete(
-      deleteId,
-    );
+    const deletedSavingGoal = await savingGoal.findByIdAndDelete(deleteId);
 
     if (!deletedSavingGoal) {
       return res.status(400).json({ message: "Saving goal is not found" });
     }
+    notifyClientsAboutTransaction({
+      message: "Saving goal has been deleted successfully.",
+      id: deleteId,
+    });
 
     res.status(200).json({ message: "Saving Goal is Deleted Successfully" });
   } catch (error) {
