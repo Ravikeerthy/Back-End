@@ -3,9 +3,10 @@ import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
 
 export const createNewSavingGoal = async (req, res) => {
   try {
-    const { savingAmount, targetDate, source, userId } = req.body;
+    const { savingAmount, targetDate, source } = req.body;
 
     console.log("req Body", req.body);
+    const userId = req.user._id;
 
     const newSaving = new savingGoal({
       savingAmount,

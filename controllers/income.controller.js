@@ -5,11 +5,16 @@ import { createNewNotification } from "../utils/notificationMail.js";
 
 export const createIncomeDetails = async (req, res) => {
   try {
-    const { incomeAmount, incomeSource, date, month, isRecurring, frequency } =
+    const { incomeAmount, incomeSource, date, isRecurring, frequency } =
       req.body;
     console.log("req.body", req.body);
 
     const userId = req.user._id;
+    console.log("Income UserID", userId);
+
+    const incomeDate = new Date(date);
+    const month = incomeDate.getMonth()+1;
+    
 
     const newIncomeAmt = new IncomeDetails({
       incomeAmount,
@@ -185,6 +190,7 @@ export const deleteIncomeDetails = async (req, res) => {
       .status(200)
       .json({ message: "Income details deleted successfully", deletedIncome });
   } catch (error) {
+    console.error("Error deleting income details:", error); 
     res.status(500).json({ message: "Server Error" });
   }
 };
