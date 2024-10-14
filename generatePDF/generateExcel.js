@@ -2,7 +2,7 @@ import ExcelJS from "exceljs";
 
 export const createExcelReport = async (req, res) => {
   try {
-    const { income, expenses, savings } = req.body;
+    const { income, expenses, savings, budget } = req.body;
 
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
@@ -12,9 +12,10 @@ export const createExcelReport = async (req, res) => {
       { header: "Amount", key: "amount", width: 10 },
     ];
 
-    workSheet.addRow({ category: "Income", amount: income });
-    workSheet.addRow({ category: "Expenses", amount: expenses });
-    workSheet.addRow({ category: "Savings", amount: savings });
+    workSheet.addRow({ category: "Income", amount: income || 0 });
+    workSheet.addRow({ category: "Expenses", amount: expenses ||0});
+    workSheet.addRow({ category: "Savings", amount: savings || 0});
+    workSheet.addRow({ category: "Budget", amount: budget || 0});
 
     const buffer = await workbook.xlsx.writeBuffer();
 

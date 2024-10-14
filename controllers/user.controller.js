@@ -84,7 +84,11 @@ export const deleteUser = async (req, res) => {
 export const userLogin = async (req, res) => {
   try {
     const { userName, password } = req.body;
+    console.log("Login Req Payloads: ", req.body);
+    
     const user = await User.findOne({ userName });
+    console.log("After Finding User: ", user);
+    
 
     if (!user) {
       return res.status(400).json({ message: "Invalid username" });
@@ -213,6 +217,7 @@ export const userLogout = async (req, res) => {
   try {
     req.user.token = req.user.tokens.filter((f) => f.token != req.token);
     await req.user.save();
+    res.clearCookie("token");
     res.status(200).json({ message: "Logged Out Successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error in logging out", error });

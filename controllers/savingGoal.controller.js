@@ -5,8 +5,9 @@ export const createNewSavingGoal = async (req, res) => {
   try {
     const { savingAmount, targetDate, source } = req.body;
 
-    console.log("req Body", req.body);
+    console.log("Saving req Body", req.body);
     const userId = req.user._id;
+    console.log("Saving UserId: ", userId);
 
     const newSaving = new savingGoal({
       savingAmount,
@@ -22,7 +23,7 @@ export const createNewSavingGoal = async (req, res) => {
 
     res.status(200).json({
       message: "Saving Goal is created successfully",
-      Saving_Goal: newSaving,
+      Saving_Goal: savedSavingGoal,
     });
   } catch (error) {
     console.log("Error:", error);
@@ -59,9 +60,10 @@ export const getAllSavingGoals = async (req, res) => {
 
 export const getAllSavingGoalsById = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const savingGoals = await savingGoal.find({ userId });
-    console.log(userId);
+    const { id } = req.params;
+    console.log("saving userId: ", id);
+    const savingGoals = await savingGoal.find({ userId: id });
+    console.log("SavingGoals:", savingGoals);
 
     if (!savingGoals) {
       return res.status(400).json({ message: "Saving Goal is not found" });
@@ -70,6 +72,8 @@ export const getAllSavingGoalsById = async (req, res) => {
       .status(200)
       .json({ message: "Saving goal retrieved successfully", savingGoals });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({ message: "Failed to fetch saving goals" });
   }
 };

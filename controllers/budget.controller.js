@@ -5,7 +5,9 @@ export const createNewBudget = async (req, res) => {
     const { budgetAmount, budgetCategory, budgetPeriod } = req.body;
     console.log("CreateBudget", req.body);
     
-    const userId = req.user._id;
+    const userId = req.user?._id;
+    console.log("budget UserId: ", userId);
+    
 
     const newBudget = new Budget({
       budgetAmount,
@@ -64,10 +66,12 @@ export const getBudgetById = async (req, res) => {
 export const getBudgetByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const userBudget = await Budget.find({ userId });
-    // if (!userBudget || userBudget.length === 0) {
-    //   return res.status(400).json({ message: "User budgets not found" });
-    // }
+    const userBudget = await Budget.find({ userId  });
+    console.log("Get UserBydget: ", userBudget);
+    
+    if (!userBudget || userBudget.length === 0) {
+      return res.status(400).json({ message: "User budgets not found" });
+    }
     res
       .status(200)
       .json({ message: "User budgets retrieved successfully", userBudget });

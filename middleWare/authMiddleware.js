@@ -21,6 +21,7 @@ const authMiddleWare = async (req, res, next) => {
 
       req.token = token;      
       req.user = user;
+      console.log("Authenticated User:", req.user);
     next();
 
   } catch (error) {

@@ -7,7 +7,7 @@ export const createIncomeDetails = async (req, res) => {
   try {
     const { incomeAmount, incomeSource, date, isRecurring, frequency } =
       req.body;
-    console.log("req.body", req.body);
+    console.log("req.body", req);
 
     const userId = req.user._id;
     console.log("Income UserID", userId);
@@ -89,10 +89,12 @@ export const getIncomeByUserId = async (req, res) => {
     const { userId } = req.params;
     console.log("Received userId:", userId);
 
-    const userIncome = await IncomeDetails.find({ userId });
+    const userIncome = await IncomeDetails.find({ userId  });
 
+    console.log("Find UserIncome: ", userIncome);
+    
     if (!userIncome || userIncome.length == 0) {
-      return res.status(400).json({ message: "User Id is not found" });
+      return res.status(400).json({ message: "User Income is not found" });
     }
 
     res.status(200).json({ message: "User Income retrieved successfully" ,userIncome });

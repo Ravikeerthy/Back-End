@@ -3,7 +3,7 @@ import User from "../models/user.schema.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 
 
-corn.schedule("* * * * *", async () => {
+corn.schedule("0 0 * * *", async () => {
   try {
     const users = await User.find();
 

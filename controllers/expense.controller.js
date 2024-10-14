@@ -85,11 +85,13 @@ export const getExpenseByUserId = async (req, res) => {
     const { userId } = req.params;
     console.log("UserID", userId);
 
-    const expenseByUserId = await ExpenseDetails.find({ userId });
+    const expenseByUserId = await ExpenseDetails.find({ userId  });
 
     console.log(expenseByUserId);
 
-   
+    if (!expenseByUserId || expenseByUserId.length === 0) {
+      return res.status(400).json({ message: "User Expenses not found" });
+    }
 
     res.status(200).json({ message: "User Expense retrieved successfully", expenseByUserId });
   } catch (error) {
