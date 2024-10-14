@@ -24,8 +24,8 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    // origin:"https://finance-and-expense-tracker.netlify.app",
-    origin: "http://localhost:5173",
+    origin: "https://finance-and-expense-tracker.netlify.app",
+
     credentials: true,
   })
 );
