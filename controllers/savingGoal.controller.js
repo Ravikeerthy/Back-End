@@ -1,6 +1,5 @@
 import Joi from "joi";
 import savingGoal from "../models/savinggoal.schema.js";
-import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
 import User from "../models/user.schema.js";
 import { deleteNotification, savingNotification, updateNotification } from "../utils/registerMail.js";
 
@@ -32,8 +31,7 @@ export const createNewSavingGoal = async (req, res) => {
 
     const savedSavingGoal = await newSaving.save();
 
-    notifyClientsAboutTransaction(savedSavingGoal);
-
+    
     const user = await User.findById(userId);
     await savingNotification(user, newSaving, "created");
 
@@ -128,8 +126,7 @@ export const updateSavingGoals = async (req, res) => {
     if (!updatedSavingGoal) {
       return res.status(400).json({ message: "Saving goal not found" });
     }
-    notifyClientsAboutTransaction(updatedSavingGoal);
-
+   
     res.status(200).json({
       message: "Saving Goal is updated successfully",
       updatedSavingGoal,
@@ -151,10 +148,7 @@ export const deleteSavingGoal = async (req, res) => {
     if (!deletedSavingGoal) {
       return res.status(400).json({ message: "Saving goal is not found" });
     }
-    notifyClientsAboutTransaction({
-      message: "Saving goal has been deleted successfully.",
-      id: deleteId,
-    });
+   
 
     const user = await User.findById(savingDetails.userId);
     await deleteNotification(user, savingDetails, "Saving");

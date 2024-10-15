@@ -1,7 +1,6 @@
 import Joi from "joi";
 import IncomeDetails from "../models/income.schema.js";
 import User from "../models/user.schema.js";
-import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
 import {
@@ -48,8 +47,7 @@ export const createIncomeDetails = async (req, res) => {
     const savedIncome = await newIncomeAmt.save();
     console.log("New Income Amount", newIncomeAmt);
 
-    notifyClientsAboutTransaction(savedIncome, userId);
-
+   
     const notificationMessage = isRecurring
       ? "Recurring income has been added successfully."
       : "Income details successfully created.";
@@ -162,7 +160,7 @@ export const updateUserIncome = async (req, res) => {
       return res.status(400).json({ message: "Income details not found" });
     }
 
-    notifyClientsAboutTransaction(updatedIncome);
+    
 
     if (isRecurring) {
       await check_CreateRecurringTransaction(updatedIncome);
@@ -208,10 +206,7 @@ export const deleteIncomeDetails = async (req, res) => {
         .json({ message: "Income details could not be deleted" });
     }
 
-    notifyClientsAboutTransaction({
-      message: "Income details have been deleted successfully.",
-      id,
-    });
+    
 
     await createNewNotification(
       incomeDetails.userId,
