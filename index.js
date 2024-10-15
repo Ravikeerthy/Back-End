@@ -15,10 +15,21 @@ import generate_router from "./routers/generater.router.js";
 import recurringRouter from "./routers/recurring.router.js";
 import recurTrans from "./routers/recuringtrans.router.js";
 import events from "events";
+import http from "http";
+import { Server } from "socket.io";
+
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  origin: "https://finance-and-expense-tracker.netlify.app", 
+    methods: ["GET", "POST"],
+    credentials: true,
+})
+
 app.use(
   cors({
     origin: "https://finance-and-expense-tracker.netlify.app",
@@ -34,6 +45,15 @@ app.use(cookieParser());
 events.EventEmitter.defaultMaxListeners = 30;
 
 const port = process.env.PORT;
+
+io.on("connection", (socket)=>{
+  console.log("A user connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+  
+})
 
 app.get("/", (req, res) => {
   res.status(200).send(`<h1>Welcome to our Expense Tracker</h1>`);
