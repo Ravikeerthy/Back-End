@@ -7,45 +7,28 @@ import { calculateNextDate } from "./recurringTransactions.js";
 const triggerRecurringTransactions = async () => {
   try {
     const currentDate = new Date();
-    
-    // Find all recurring incomes and expenses
-    const recurringIncomes = await IncomeDetails.find({ isRecurring: true });
-    const recurringExpenses = await ExpenseDetails.find({ isRecurring: true });
-    
-    const newIncomes = [];
-    const newExpenses = [];
 
-    // Process recurring incomes
-    for (const income of recurringIncomes) {
-      const nextDate = calculateNextDate(income.date, income.frequency);
-      if (nextDate <= currentDate) {
-        console.log(`Processing income: ${income._id}, next date: ${nextDate}`);
+    const recurringItems = [
+      { model: IncomeDetails, type: "income" },
+      { model: ExpenseDetails, type: "expense" },
+    ];
 
-        newIncomes.push({ ...income._doc, date: nextDate });
-       
-      }
-    }
-    if (newIncomes.length > 0) {
-      await IncomeDetails.insertMany(newIncomes);
-    
-      console.log(`${newIncomes.length} income transactions created.`);
-    }
+    for (const { model, type } of recurringItems) {
+      const recurringData = await model.find({ isRecurring: true });
+      const newItems = [];
 
-    // Process recurring expenses
-    for (const expense of recurringExpenses) {
-      const nextDate = calculateNextDate(expense.date, expense.frequency);
-      if (nextDate <= currentDate) {
-
-        console.log(`Processing expense: ${expense._id}, next date: ${nextDate}`);
-
-        newExpenses.push({ ...expense._doc, date: nextDate });
-
+      for (const item of recurringData) {
+        const nextDate = calculateNextDate(item.date, item.frequency);
+        if (nextDate <= currentDate) {
+          console.log(`Processing ${type}: ${item._id}, next date: ${nextDate}`);
+          newItems.push({ ...item._doc, date: nextDate });
         }
-    }
-    if (newExpenses.length > 0) {
-      await ExpenseDetails.insertMany(newExpenses);
-     
-      console.log(`${newExpenses.length} expense transactions created.`);
+      }
+
+      if (newItems.length > 0) {
+        await model.insertMany(newItems);
+        console.log(`${newItems.length} ${type} transactions created.`);
+      }
     }
 
     console.log("Recurring transactions processed successfully.");
@@ -53,5 +36,6 @@ const triggerRecurringTransactions = async () => {
     console.error("Error processing recurring transactions:", error.message);
   }
 };
+
 
 export default triggerRecurringTransactions;

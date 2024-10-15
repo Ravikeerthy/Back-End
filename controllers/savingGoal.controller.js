@@ -1,7 +1,20 @@
+import Joi from "joi";
 import savingGoal from "../models/savinggoal.schema.js";
 import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
+import User from "../models/user.schema.js";
+import { deleteNotification, savingNotification, updateNotification } from "../utils/registerMail.js";
+
+const savingGoalSchema = Joi.object({
+  savingAmount: Joi.number().required(),
+  targetDate: Joi.date().iso().required(),
+  source: Joi.string().optional(),
+});
 
 export const createNewSavingGoal = async (req, res) => {
+  const { error } = savingGoalSchema.validate(req.body); 
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
+  }
   try {
     const { savingAmount, targetDate, source } = req.body;
 
@@ -20,6 +33,10 @@ export const createNewSavingGoal = async (req, res) => {
     const savedSavingGoal = await newSaving.save();
 
     notifyClientsAboutTransaction(savedSavingGoal);
+
+    const user = await User.findById(userId);
+    await savingNotification(user, newSaving, "created");
+
 
     res.status(200).json({
       message: "Saving Goal is created successfully",
@@ -117,6 +134,10 @@ export const updateSavingGoals = async (req, res) => {
       message: "Saving Goal is updated successfully",
       updatedSavingGoal,
     });
+
+    const user = await User.findById(updatedSaving.userId);
+    await updateNotification(user, updatedSaving, "Saving");
+
   } catch (error) {
     res.status(500).json({ message: "Sever Error" });
   }
@@ -134,6 +155,9 @@ export const deleteSavingGoal = async (req, res) => {
       message: "Saving goal has been deleted successfully.",
       id: deleteId,
     });
+
+    const user = await User.findById(savingDetails.userId);
+    await deleteNotification(user, savingDetails, "Saving");
 
     res.status(200).json({ message: "Saving Goal is Deleted Successfully" });
   } catch (error) {

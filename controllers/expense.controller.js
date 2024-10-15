@@ -1,8 +1,25 @@
+import Joi from "joi";
 import ExpenseDetails from "../models/expense.schema.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
+import User from "../models/user.schema.js";
+import { deleteNotification, expenseNotification, updateNotification } from "../utils/registerMail.js";
+
+const expenseSchema = Joi.object({
+  expenseAmount: Joi.number().required(),
+  expenseCategory: Joi.string().required(),
+  expenseDescription: Joi.string().optional(),
+  date: Joi.date().required(),
+  isRecurring: Joi.boolean().required(),
+  frequency: Joi.string().valid('daily', 'weekly', 'monthly').optional(),
+});
 
 export const createExpense = async (req, res) => {
+  const { error } = expenseSchema.validate(req.body); 
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
+  }
+
   try {
     const {
       expenseAmount,
@@ -34,17 +51,13 @@ export const createExpense = async (req, res) => {
     console.log(newExpense);
     await newExpense.save();
 
+    const user = await User.findById(userId);
+
     if (isRecurring) {
       await check_CreateRecurringTransaction(newExpense);
-      await createNewNotification(
-        userId,
-        `A recurring expense of ${expenseAmount} has been created.`
-      );
+      await expenseNotification(user, newExpense, "created");
     } else {
-      await createNewNotification(
-        userId,
-        `An expense of ${expenseAmount} has been added.`
-      );
+      await expenseNotification(user, newExpense, "added");
     }
 
     res
@@ -164,7 +177,8 @@ export const updateExpense = async (req, res) => {
         `An expense of ${expenseAmount} has been added.`
       );
     }
-
+    const user = await User.findById(updatedExpense.userId);
+    await updateNotification(user, updatedExpense, "Expense");
     res
       .status(200)
       .json({ message: "Expense details id updated successfully" });
@@ -189,10 +203,10 @@ export const deleteExpense = async (req, res) => {
         .json({ message: "Expense details could not be deleted" });
     }
 
-    await createNewNotification(
-      expenseDetails.userId,
-      `Your expense has been deleted.`
-    );
+   
+
+    const user = await User.findById(expenseDetails.userId);
+    await deleteNotification(user, expenseDetails, "Expense");
     res
       .status(200)
       .json({ message: "Expense details is successfully deleted" });

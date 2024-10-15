@@ -1,25 +1,43 @@
+import Joi from "joi";
 import Budget from "../models/budget.schema.js";
+import {
+  budgetNotification,
+  deleteNotification,
+  updateNotification,
+} from "../utils/registerMail.js";
+import User from "../models/user.schema.js";
+
+const budgetSchema = Joi.object({
+  budgetAmount: Joi.number().required(),
+  budgetCategory: Joi.string().required(),
+  budgetPeriod: Joi.string().valid("monthly", "yearly").required(),
+});
 
 export const createNewBudget = async (req, res) => {
+  const { error } = budgetSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
+  }
   try {
     const { budgetAmount, budgetCategory, budgetPeriod } = req.body;
     console.log("CreateBudget", req.body);
-    
+
     const userId = req.user?._id;
     console.log("budget UserId: ", userId);
-    
 
     const newBudget = new Budget({
       budgetAmount,
       budgetCategory,
       budgetPeriod,
-      userId
-     
+      userId,
     });
 
     await newBudget.save();
 
     console.log("newBudget", newBudget);
+
+    const user = await User.findById(userId);
+    await budgetNotification(user, newBudget, "created");
 
     res
       .status(200)
@@ -50,7 +68,7 @@ export const getBudgetById = async (req, res) => {
     const { userId } = req.params;
     console.log("id", userId);
 
-    const BudgetById = await Budget.find({userId});
+    const BudgetById = await Budget.find({ userId });
     console.log("BudgetById", BudgetById);
 
     if (!BudgetById) {
@@ -66,9 +84,9 @@ export const getBudgetById = async (req, res) => {
 export const getBudgetByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const userBudget = await Budget.find({ userId  });
+    const userBudget = await Budget.find({ userId });
     console.log("Get UserBydget: ", userBudget);
-    
+
     if (!userBudget || userBudget.length === 0) {
       return res.status(400).json({ message: "User budgets not found" });
     }
@@ -97,12 +115,13 @@ export const updateBudget = async (req, res) => {
       return res.status(400).json({ message: "Budget details is not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Budget details is updated successfully",
-        updatedBudget,
-      });
+    res.status(200).json({
+      message: "Budget details is updated successfully",
+      updatedBudget,
+    });
+
+    const user = await User.findById(updatedBudget.userId);
+    await updateNotification(user, updatedBudget, "Budget");
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -117,6 +136,8 @@ export const deleteBudget = async (req, res) => {
     if (!deletedBudget || deletedBudget.length === 0) {
       return res.status(400).json({ message: "Budget details not found" });
     }
+    const user = await User.findById(budgetDetails.userId);
+    await deleteNotification(user, budgetDetails, "Budget");
     res.status(200).json({ message: "Budget details is deleted successfully" });
   } catch (error) {
     console.error(error);

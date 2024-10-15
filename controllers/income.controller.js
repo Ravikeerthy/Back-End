@@ -1,9 +1,30 @@
+import Joi from "joi";
 import IncomeDetails from "../models/income.schema.js";
+import User from "../models/user.schema.js";
 import { notifyClientsAboutTransaction } from "../realtime/realtimeSocket.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
+import {
+  deleteNotification,
+  incomeNotification,
+  updateNotification,
+} from "../utils/registerMail.js";
+
+const incomeSchema = Joi.object({
+  incomeAmount: Joi.number().required(),
+  incomeSource: Joi.string().min(3).required(),
+  date: Joi.date().iso().required(),
+  isRecurring: Joi.boolean().required(),
+  frequency: Joi.string().optional(),
+});
+
+
 
 export const createIncomeDetails = async (req, res) => {
+  const { error } = incomeSchema.validate(req.body); 
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
+  }
   try {
     const { incomeAmount, incomeSource, date, isRecurring, frequency } =
       req.body;
@@ -13,8 +34,7 @@ export const createIncomeDetails = async (req, res) => {
     console.log("Income UserID", userId);
 
     const incomeDate = new Date(date);
-    const month = incomeDate.getMonth()+1;
-    
+    const month = incomeDate.getMonth() + 1;
 
     const newIncomeAmt = new IncomeDetails({
       incomeAmount,
@@ -35,6 +55,9 @@ export const createIncomeDetails = async (req, res) => {
       : "Income details successfully created.";
 
     await createNewNotification(userId, notificationMessage);
+
+    const user = await User.findById(userId);
+    await incomeNotification(user, savedIncome, "created");
 
     res.status(200).json({ message: "Income Details Successfully created." });
   } catch (error) {
@@ -89,15 +112,17 @@ export const getIncomeByUserId = async (req, res) => {
     const { userId } = req.params;
     console.log("Received userId:", userId);
 
-    const userIncome = await IncomeDetails.find({ userId  });
+    const userIncome = await IncomeDetails.find({ userId });
 
     console.log("Find UserIncome: ", userIncome);
-    
+
     if (!userIncome || userIncome.length == 0) {
       return res.status(400).json({ message: "User Income is not found" });
     }
 
-    res.status(200).json({ message: "User Income retrieved successfully" ,userIncome });
+    res
+      .status(200)
+      .json({ message: "User Income retrieved successfully", userIncome });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -151,6 +176,10 @@ export const updateUserIncome = async (req, res) => {
         "Income details updated successfully."
       );
     }
+
+    const user = await User.findById(updatedIncome.userId);
+    await updateNotification(user, updatedIncome, "Income");
+
     res.status(200).json({
       message: "Updated income details successfully",
       updatedIncome: updatedIncome,
@@ -188,11 +217,15 @@ export const deleteIncomeDetails = async (req, res) => {
       incomeDetails.userId,
       "Income details have been deleted successfully."
     );
+
+    const user = await User.findById(incomeDetails.userId);
+    await deleteNotification(user, incomeDetails, "Income");
+
     res
       .status(200)
       .json({ message: "Income details deleted successfully", deletedIncome });
   } catch (error) {
-    console.error("Error deleting income details:", error); 
+    console.error("Error deleting income details:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
