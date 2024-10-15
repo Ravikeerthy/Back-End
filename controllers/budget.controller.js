@@ -1,4 +1,3 @@
-import Joi from "joi";
 import Budget from "../models/budget.schema.js";
 import {
   budgetNotification,
@@ -7,17 +6,10 @@ import {
 } from "../utils/registerMail.js";
 import User from "../models/user.schema.js";
 
-const budgetSchema = Joi.object({
-  budgetAmount: Joi.number().required(),
-  budgetCategory: Joi.string().required(),
-  budgetPeriod: Joi.string().valid("monthly", "yearly").required(),
-});
+
 
 export const createNewBudget = async (req, res) => {
-  const { error } = budgetSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
-  }
+ 
   try {
     const { budgetAmount, budgetCategory, budgetPeriod } = req.body;
     console.log("CreateBudget", req.body);

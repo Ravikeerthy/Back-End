@@ -1,19 +1,12 @@
-import Joi from "joi";
 import savingGoal from "../models/savinggoal.schema.js";
 import User from "../models/user.schema.js";
-import { deleteNotification, savingNotification, updateNotification } from "../utils/registerMail.js";
-
-const savingGoalSchema = Joi.object({
-  savingAmount: Joi.number().required(),
-  targetDate: Joi.date().iso().required(),
-  source: Joi.string().optional(),
-});
+import {
+  deleteNotification,
+  savingNotification,
+  updateNotification,
+} from "../utils/registerMail.js";
 
 export const createNewSavingGoal = async (req, res) => {
-  const { error } = savingGoalSchema.validate(req.body); 
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
-  }
   try {
     const { savingAmount, targetDate, source } = req.body;
 
@@ -31,10 +24,8 @@ export const createNewSavingGoal = async (req, res) => {
 
     const savedSavingGoal = await newSaving.save();
 
-    
     const user = await User.findById(userId);
     await savingNotification(user, newSaving, "created");
-
 
     res.status(200).json({
       message: "Saving Goal is created successfully",
@@ -126,7 +117,7 @@ export const updateSavingGoals = async (req, res) => {
     if (!updatedSavingGoal) {
       return res.status(400).json({ message: "Saving goal not found" });
     }
-   
+
     res.status(200).json({
       message: "Saving Goal is updated successfully",
       updatedSavingGoal,
@@ -134,7 +125,6 @@ export const updateSavingGoals = async (req, res) => {
 
     const user = await User.findById(updatedSaving.userId);
     await updateNotification(user, updatedSaving, "Saving");
-
   } catch (error) {
     res.status(500).json({ message: "Sever Error" });
   }
@@ -148,7 +138,6 @@ export const deleteSavingGoal = async (req, res) => {
     if (!deletedSavingGoal) {
       return res.status(400).json({ message: "Saving goal is not found" });
     }
-   
 
     const user = await User.findById(savingDetails.userId);
     await deleteNotification(user, savingDetails, "Saving");

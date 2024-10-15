@@ -1,25 +1,14 @@
-import Joi from "joi";
 import ExpenseDetails from "../models/expense.schema.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
 import { createNewNotification } from "../utils/notificationMail.js";
 import User from "../models/user.schema.js";
-import { deleteNotification, expenseNotification, updateNotification } from "../utils/registerMail.js";
-
-const expenseSchema = Joi.object({
-  expenseAmount: Joi.number().required(),
-  expenseCategory: Joi.string().required(),
-  expenseDescription: Joi.string().optional(),
-  date: Joi.date().required(),
-  isRecurring: Joi.boolean().required(),
-  frequency: Joi.string().valid('daily', 'weekly', 'monthly').optional(),
-});
+import {
+  deleteNotification,
+  expenseNotification,
+  updateNotification,
+} from "../utils/registerMail.js";
 
 export const createExpense = async (req, res) => {
-  const { error } = expenseSchema.validate(req.body); 
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
-  }
-
   try {
     const {
       expenseAmount,
@@ -35,7 +24,7 @@ export const createExpense = async (req, res) => {
     console.log("expense UserId: ", userId);
 
     const expenseDate = new Date(date);
-    const month = expenseDate.getMonth()+1;
+    const month = expenseDate.getMonth() + 1;
 
     const newExpense = new ExpenseDetails({
       expenseAmount,
@@ -45,7 +34,7 @@ export const createExpense = async (req, res) => {
       month,
       isRecurring,
       frequency,
-      userId
+      userId,
     });
 
     console.log(newExpense);
@@ -62,7 +51,10 @@ export const createExpense = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Expense details is created successfully",  expense: newExpense });
+      .json({
+        message: "Expense details is created successfully",
+        expense: newExpense,
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -98,7 +90,7 @@ export const getExpenseByUserId = async (req, res) => {
     const { userId } = req.params;
     console.log("UserID", userId);
 
-    const expenseByUserId = await ExpenseDetails.find({ userId  });
+    const expenseByUserId = await ExpenseDetails.find({ userId });
 
     console.log(expenseByUserId);
 
@@ -106,7 +98,12 @@ export const getExpenseByUserId = async (req, res) => {
       return res.status(400).json({ message: "User Expenses not found" });
     }
 
-    res.status(200).json({ message: "User Expense retrieved successfully", expenseByUserId });
+    res
+      .status(200)
+      .json({
+        message: "User Expense retrieved successfully",
+        expenseByUserId,
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -202,8 +199,6 @@ export const deleteExpense = async (req, res) => {
         .status(400)
         .json({ message: "Expense details could not be deleted" });
     }
-
-   
 
     const user = await User.findById(expenseDetails.userId);
     await deleteNotification(user, expenseDetails, "Expense");

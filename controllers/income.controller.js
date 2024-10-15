@@ -1,4 +1,3 @@
-import Joi from "joi";
 import IncomeDetails from "../models/income.schema.js";
 import User from "../models/user.schema.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
@@ -9,21 +8,9 @@ import {
   updateNotification,
 } from "../utils/registerMail.js";
 
-const incomeSchema = Joi.object({
-  incomeAmount: Joi.number().required(),
-  incomeSource: Joi.string().min(3).required(),
-  date: Joi.date().iso().required(),
-  isRecurring: Joi.boolean().required(),
-  frequency: Joi.string().optional(),
-});
-
-
 
 export const createIncomeDetails = async (req, res) => {
-  const { error } = incomeSchema.validate(req.body); 
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message }); // Handle validation error
-  }
+  
   try {
     const { incomeAmount, incomeSource, date, isRecurring, frequency } =
       req.body;
