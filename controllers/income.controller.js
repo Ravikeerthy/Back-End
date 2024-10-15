@@ -15,6 +15,7 @@ export const createIncomeDetails = async (req, res) => {
     const { incomeAmount, incomeSource, date, isRecurring, frequency } =
       req.body;
     console.log("req.body", req);
+    
 
     const userId = req.user._id;
     console.log("Income UserID", userId);
@@ -41,10 +42,10 @@ export const createIncomeDetails = async (req, res) => {
 
     await createNewNotification(userId, notificationMessage);
 
-    const user = await User.findById(userId);
-    await incomeNotification(user, savedIncome, "created");
+   
+    await incomeNotification(userId, newIncomeAmt, "created");
 
-    res.status(200).json({ message: "Income Details Successfully created." });
+    res.status(200).json({ message: "Income Details Successfully created." , savedIncome });
   } catch (error) {
     console.log("Error creating income:", error);
 

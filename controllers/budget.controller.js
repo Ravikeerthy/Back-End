@@ -28,8 +28,8 @@ export const createNewBudget = async (req, res) => {
 
     console.log("newBudget", newBudget);
 
-    const user = await User.findById(userId);
-    await budgetNotification(user, newBudget, "created");
+    
+    await budgetNotification(userId, newBudget, "created");
 
     res
       .status(200)
@@ -128,8 +128,8 @@ export const deleteBudget = async (req, res) => {
     if (!deletedBudget || deletedBudget.length === 0) {
       return res.status(400).json({ message: "Budget details not found" });
     }
-    const user = await User.findById(budgetDetails.userId);
-    await deleteNotification(user, budgetDetails, "Budget");
+    const user = await User.findById(deletedBudget.userId);
+    await deleteNotification(user, deletedBudget, "Budget");
     res.status(200).json({ message: "Budget details is deleted successfully" });
   } catch (error) {
     console.error(error);

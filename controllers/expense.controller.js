@@ -44,9 +44,9 @@ export const createExpense = async (req, res) => {
 
     if (isRecurring) {
       await check_CreateRecurringTransaction(newExpense);
-      await expenseNotification(user, newExpense, "created");
+      await expenseNotification(userId, newExpense, "created");
     } else {
-      await expenseNotification(user, newExpense, "added");
+      await expenseNotification(userId, newExpense, "added");
     }
 
     res

@@ -24,8 +24,8 @@ export const createNewSavingGoal = async (req, res) => {
 
     const savedSavingGoal = await newSaving.save();
 
-    const user = await User.findById(userId);
-    await savingNotification(user, newSaving, "created");
+    
+    await savingNotification(userId, newSaving, "created");
 
     res.status(200).json({
       message: "Saving Goal is created successfully",
@@ -123,8 +123,8 @@ export const updateSavingGoals = async (req, res) => {
       updatedSavingGoal,
     });
 
-    const user = await User.findById(updatedSaving.userId);
-    await updateNotification(user, updatedSaving, "Saving");
+    const user = await User.findById(updatedSavingGoal.userId);
+    await updateNotification(user, updatedSavingGoal, "Saving");
   } catch (error) {
     res.status(500).json({ message: "Sever Error" });
   }
@@ -139,8 +139,8 @@ export const deleteSavingGoal = async (req, res) => {
       return res.status(400).json({ message: "Saving goal is not found" });
     }
 
-    const user = await User.findById(savingDetails.userId);
-    await deleteNotification(user, savingDetails, "Saving");
+    const user = await User.findById(deletedSavingGoal.userId);
+    await deleteNotification(user, deletedSavingGoal, "Saving");
 
     res.status(200).json({ message: "Saving Goal is Deleted Successfully" });
   } catch (error) {

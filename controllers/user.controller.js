@@ -11,9 +11,11 @@ dotenv.config();
 export const createNewUser = async (req, res) => {
   try {
     const { firstName, lastName, userName, password, contactNumber } = req.body;
-
+    console.log("New user: ", req.body);
+    
     const existingUser = await User.findOne({ userName });
-
+    console.log("Existing User: ", existingUser);
+    
     if (existingUser) {
       return res.status(400).json({ message: "UserName is already exists" });
     }
@@ -29,6 +31,8 @@ export const createNewUser = async (req, res) => {
     });
 
     await newUser.save(); // save the new user in database
+    console.log("New User Saved: ", newUser);
+    
 
     await registerMail(newUser); // Send registration email
 
