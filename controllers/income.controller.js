@@ -1,3 +1,4 @@
+import moment from "moment";
 import IncomeDetails from "../models/income.schema.js";
 import User from "../models/user.schema.js";
 import { check_CreateRecurringTransaction } from "../services/recurringTransactions.js";
@@ -8,14 +9,11 @@ import {
   updateNotification,
 } from "../utils/registerMail.js";
 
-
 export const createIncomeDetails = async (req, res) => {
-  
   try {
     const { incomeAmount, incomeSource, date, isRecurring, frequency } =
       req.body;
     console.log("req.body", req);
-    
 
     const userId = req.user._id;
     console.log("Income UserID", userId);
@@ -35,17 +33,17 @@ export const createIncomeDetails = async (req, res) => {
     const savedIncome = await newIncomeAmt.save();
     console.log("New Income Amount", newIncomeAmt);
 
-   
     const notificationMessage = isRecurring
       ? "Recurring income has been added successfully."
       : "Income details successfully created.";
 
     await createNewNotification(userId, notificationMessage);
 
-   
     await incomeNotification(userId, newIncomeAmt, "created");
 
-    res.status(200).json({ message: "Income Details Successfully created." , savedIncome });
+    res
+      .status(200)
+      .json({ message: "Income Details Successfully created.", savedIncome });
   } catch (error) {
     console.log("Error creating income:", error);
 
@@ -94,11 +92,37 @@ export const getIncomeById = async (req, res) => {
 };
 
 export const getIncomeByUserId = async (req, res) => {
-  try {
-    const { userId } = req.params;
+  const { userId } = req.params;
     console.log("Received userId:", userId);
+    const month = req.query.month;
+    const week = req.query.week;
+  try {
+    let startDate, endDate;
 
-    const userIncome = await IncomeDetails.find({ userId });
+    if (month === 'previous') {
+      startDate = moment().subtract(1, 'months').startOf('month').toDate();
+      endDate = moment().subtract(1, 'months').endOf('month').toDate();
+    } else if (month === 'current') {
+      startDate = moment().startOf('month').toDate();
+      endDate = moment().endOf('month').toDate();
+    }
+
+       if (week === 'previous') {
+      startDate = moment().subtract(1, 'weeks').startOf('week').toDate();
+      endDate = moment().subtract(1, 'weeks').endOf('week').toDate();
+    } else if (week === 'current') {
+      startDate = moment().startOf('week').toDate();
+      endDate = moment().endOf('week').toDate();
+    }
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: "Invalid period specified" });
+    }
+
+
+    const userIncome = await IncomeDetails.find({ userId,  date: { $gte: startDate, $lte: endDate } });
+
+    const totalIncome = incomeData.reduce((total, income) => total + income.amount, 0);
 
     console.log("Find UserIncome: ", userIncome);
 
@@ -108,7 +132,7 @@ export const getIncomeByUserId = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "User Income retrieved successfully", userIncome });
+      .json({ message: "User Income retrieved successfully", userIncome, totalIncome });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -147,8 +171,6 @@ export const updateUserIncome = async (req, res) => {
 
       return res.status(400).json({ message: "Income details not found" });
     }
-
-    
 
     if (isRecurring) {
       await check_CreateRecurringTransaction(updatedIncome);
@@ -193,8 +215,6 @@ export const deleteIncomeDetails = async (req, res) => {
         .status(400)
         .json({ message: "Income details could not be deleted" });
     }
-
-    
 
     await createNewNotification(
       incomeDetails.userId,

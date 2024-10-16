@@ -49,12 +49,10 @@ export const createExpense = async (req, res) => {
       await expenseNotification(userId, newExpense, "added");
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Expense details is created successfully",
-        expense: newExpense,
-      });
+    res.status(200).json({
+      message: "Expense details is created successfully",
+      expense: newExpense,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -86,24 +84,54 @@ export const getAllExpense = async (req, res) => {
 };
 
 export const getExpenseByUserId = async (req, res) => {
+  const { userId } = req.params;
+  console.log("UserID", userId);
+  const month = req.query.month;
+  const week = req.query.week;
   try {
-    const { userId } = req.params;
-    console.log("UserID", userId);
+    let startDate, endDate;
 
-    const expenseByUserId = await ExpenseDetails.find({ userId });
+    if (month === "previous") {
+      startDate = moment().subtract(1, "months").startOf("month").toDate();
+      endDate = moment().subtract(1, "months").endOf("month").toDate();
+    } else if (month === "current") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    }
 
-    console.log(expenseByUserId);
+    if (week === "previous") {
+      startDate = moment().subtract(1, "weeks").startOf("week").toDate();
+      endDate = moment().subtract(1, "weeks").endOf("week").toDate();
+    } else if (week === "current") {
+      startDate = moment().startOf("week").toDate();
+      endDate = moment().endOf("week").toDate();
+    }
 
-    if (!expenseByUserId || expenseByUserId.length === 0) {
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: "Invalid period specified" });
+    }
+
+    const userExpenses = await ExpenseDetails.find({
+      userId,
+      date: { $gte: startDate, $lte: endDate },
+    });
+
+    const totalExpenses = userExpenses.reduce(
+      (total, expense) => total + expense.expenseAmount,
+      0
+    );
+
+    console.log("Find User Expenses: ", userExpenses);
+
+    if (!userExpenses || userExpenses.length === 0) {
       return res.status(400).json({ message: "User Expenses not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "User Expense retrieved successfully",
-        expenseByUserId,
-      });
+    res.status(200).json({
+      message: "User Expenses retrieved successfully",
+      userExpenses,
+      totalExpenses,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
