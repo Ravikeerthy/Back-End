@@ -113,7 +113,6 @@ export const getExpenseByUserId = async (req, res) => {
 
     const userExpenses = await ExpenseDetails.find({
       userId,
-      date: { $gte: startDate, $lte: endDate },
     });
 
     // const totalExpenses = userExpenses.reduce(
@@ -130,7 +129,6 @@ export const getExpenseByUserId = async (req, res) => {
     res.status(200).json({
       message: "User Expenses retrieved successfully",
       userExpenses,
-      
     });
   } catch (error) {
     console.error(error);

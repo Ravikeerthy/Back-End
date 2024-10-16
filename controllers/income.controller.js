@@ -93,9 +93,9 @@ export const getIncomeById = async (req, res) => {
 
 export const getIncomeByUserId = async (req, res) => {
   const { userId } = req.params;
-    console.log("Received userId:", userId);
-    // const month = req.query.month;
-    // const week = req.query.week;
+  console.log("Received userId:", userId);
+  // const month = req.query.month;
+  // const week = req.query.week;
   try {
     // let startDate, endDate;
 
@@ -119,8 +119,7 @@ export const getIncomeByUserId = async (req, res) => {
     //   return res.status(400).json({ message: "Invalid period specified" });
     // }
 
-
-    const userIncome = await IncomeDetails.find({ userId,  date: { $gte: startDate, $lte: endDate } });
+    const userIncome = await IncomeDetails.find({ userId });
 
     // const totalIncome = incomeData.reduce((total, income) => total + income.amount, 0);
 
