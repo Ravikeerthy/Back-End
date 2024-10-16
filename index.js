@@ -25,9 +25,12 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  origin: "https://finance-and-expense-tracker.netlify.app", 
+  cors:{
+    origin: "https://finance-and-expense-tracker.netlify.app", 
     methods: ["GET", "POST"],
     credentials: true,
+  }
+ 
 })
 
 app.use(
@@ -79,6 +82,6 @@ app.use((err, req, res, next) => {
 
 dbConnect();
 
-app.listen(port, () => {
-  console.log(`App is listening in ${port}`);
+server.listen(port, () => {
+  console.log(`Server is listening in ${port}`);
 });
