@@ -86,40 +86,40 @@ export const getAllExpense = async (req, res) => {
 export const getExpenseByUserId = async (req, res) => {
   const { userId } = req.params;
   console.log("UserID", userId);
-  const month = req.query.month;
-  const week = req.query.week;
+  // const month = req.query.month;
+  // const week = req.query.week;
   try {
-    let startDate, endDate;
+    // let startDate, endDate;
 
-    if (month === "previous") {
-      startDate = moment().subtract(1, "months").startOf("month").toDate();
-      endDate = moment().subtract(1, "months").endOf("month").toDate();
-    } else if (month === "current") {
-      startDate = moment().startOf("month").toDate();
-      endDate = moment().endOf("month").toDate();
-    }
+    // if (month === "previous") {
+    //   startDate = moment().subtract(1, "months").startOf("month").toDate();
+    //   endDate = moment().subtract(1, "months").endOf("month").toDate();
+    // } else if (month === "current") {
+    //   startDate = moment().startOf("month").toDate();
+    //   endDate = moment().endOf("month").toDate();
+    // }
 
-    if (week === "previous") {
-      startDate = moment().subtract(1, "weeks").startOf("week").toDate();
-      endDate = moment().subtract(1, "weeks").endOf("week").toDate();
-    } else if (week === "current") {
-      startDate = moment().startOf("week").toDate();
-      endDate = moment().endOf("week").toDate();
-    }
+    // if (week === "previous") {
+    //   startDate = moment().subtract(1, "weeks").startOf("week").toDate();
+    //   endDate = moment().subtract(1, "weeks").endOf("week").toDate();
+    // } else if (week === "current") {
+    //   startDate = moment().startOf("week").toDate();
+    //   endDate = moment().endOf("week").toDate();
+    // }
 
-    if (!startDate || !endDate) {
-      return res.status(400).json({ message: "Invalid period specified" });
-    }
+    // if (!startDate || !endDate) {
+    //   return res.status(400).json({ message: "Invalid period specified" });
+    // }
 
     const userExpenses = await ExpenseDetails.find({
       userId,
       date: { $gte: startDate, $lte: endDate },
     });
 
-    const totalExpenses = userExpenses.reduce(
-      (total, expense) => total + expense.expenseAmount,
-      0
-    );
+    // const totalExpenses = userExpenses.reduce(
+    //   (total, expense) => total + expense.expenseAmount,
+    //   0
+    // );
 
     console.log("Find User Expenses: ", userExpenses);
 
@@ -130,7 +130,7 @@ export const getExpenseByUserId = async (req, res) => {
     res.status(200).json({
       message: "User Expenses retrieved successfully",
       userExpenses,
-      totalExpenses,
+      
     });
   } catch (error) {
     console.error(error);

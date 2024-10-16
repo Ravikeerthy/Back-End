@@ -94,35 +94,35 @@ export const getIncomeById = async (req, res) => {
 export const getIncomeByUserId = async (req, res) => {
   const { userId } = req.params;
     console.log("Received userId:", userId);
-    const month = req.query.month;
-    const week = req.query.week;
+    // const month = req.query.month;
+    // const week = req.query.week;
   try {
-    let startDate, endDate;
+    // let startDate, endDate;
 
-    if (month === 'previous') {
-      startDate = moment().subtract(1, 'months').startOf('month').toDate();
-      endDate = moment().subtract(1, 'months').endOf('month').toDate();
-    } else if (month === 'current') {
-      startDate = moment().startOf('month').toDate();
-      endDate = moment().endOf('month').toDate();
-    }
+    // if (month === 'previous') {
+    //   startDate = moment().subtract(1, 'months').startOf('month').toDate();
+    //   endDate = moment().subtract(1, 'months').endOf('month').toDate();
+    // } else if (month === 'current') {
+    //   startDate = moment().startOf('month').toDate();
+    //   endDate = moment().endOf('month').toDate();
+    // }
 
-       if (week === 'previous') {
-      startDate = moment().subtract(1, 'weeks').startOf('week').toDate();
-      endDate = moment().subtract(1, 'weeks').endOf('week').toDate();
-    } else if (week === 'current') {
-      startDate = moment().startOf('week').toDate();
-      endDate = moment().endOf('week').toDate();
-    }
+    //    if (week === 'previous') {
+    //   startDate = moment().subtract(1, 'weeks').startOf('week').toDate();
+    //   endDate = moment().subtract(1, 'weeks').endOf('week').toDate();
+    // } else if (week === 'current') {
+    //   startDate = moment().startOf('week').toDate();
+    //   endDate = moment().endOf('week').toDate();
+    // }
 
-    if (!startDate || !endDate) {
-      return res.status(400).json({ message: "Invalid period specified" });
-    }
+    // if (!startDate || !endDate) {
+    //   return res.status(400).json({ message: "Invalid period specified" });
+    // }
 
 
     const userIncome = await IncomeDetails.find({ userId,  date: { $gte: startDate, $lte: endDate } });
 
-    const totalIncome = incomeData.reduce((total, income) => total + income.amount, 0);
+    // const totalIncome = incomeData.reduce((total, income) => total + income.amount, 0);
 
     console.log("Find UserIncome: ", userIncome);
 
@@ -132,7 +132,7 @@ export const getIncomeByUserId = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "User Income retrieved successfully", userIncome, totalIncome });
+      .json({ message: "User Income retrieved successfully", userIncome });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
