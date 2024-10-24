@@ -35,7 +35,8 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: "https://finance-and-expense-tracker.netlify.app",
+    origin:[ "https://finance-and-expense-tracker.netlify.app", "http://localhost:5173"],
+    
 
     credentials: true,
   })
