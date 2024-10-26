@@ -19,7 +19,7 @@ export const createExcelReport = async (req, res) => {
 
    
     workSheet.addRow({category:"Income Details"})
-    income.forEach((item) =>
+   const incomeDetails = income.forEach((item) =>
       workSheet.addRow({
         category: "Income",
         amount: item.incomeAmount || 0,
@@ -29,10 +29,13 @@ export const createExcelReport = async (req, res) => {
        
       })
     );
+
+    console.log("Income Details: ", incomeDetails);
+    
     workSheet.addRow({});
     workSheet.addRow({category:"Expense Details"})
 
-    expense.forEach((item) =>
+    const expenseDetails = expense.forEach((item) =>
       workSheet.addRow({
         category: "Expense",
         amount: item.expenseAmount || 0,
@@ -42,10 +45,14 @@ export const createExcelReport = async (req, res) => {
         description: item.expenseDescription || "",
       })
     );
+
+    console.log("Expense Details: ", expenseDetails);
+
+
     workSheet.addRow({});
     workSheet.addRow({category:"Saving Details"})
 
-    saving.forEach((item) => {
+   const savingDetails =  saving.forEach((item) => {
       workSheet.addRow({
         category: "Saving",
         amount: item.savingAmount || 0,
@@ -55,9 +62,11 @@ export const createExcelReport = async (req, res) => {
       });
     });
 
+    console.log("Saving Details: ", savingDetails);
+
     workSheet.addRow({});
     workSheet.addRow({category:"budget Details"})
-    budget.forEach((item) => {
+    const budgetDetails = budget.forEach((item) => {
       workSheet.addRow({
         category: "Budget",
         amount: item.budgetAmount || 0,
@@ -65,6 +74,7 @@ export const createExcelReport = async (req, res) => {
         description: item.budgetPeriod || "",
       });
     });
+    console.log("Budget Details: ", budgetDetails);
 
 
 
