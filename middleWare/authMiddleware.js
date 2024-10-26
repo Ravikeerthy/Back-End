@@ -12,6 +12,7 @@ const authMiddleWare = async (req, res, next) => {
     return res.status(401).json({ message: "Authorization token is missing" });
   }
 
+  
   try {
    const decoded = jwt.verify(token, process.env.SECRET_KEY);
       const user = await User.findOne({_id:decoded._id, "tokens.token":token});
@@ -25,8 +26,8 @@ const authMiddleWare = async (req, res, next) => {
     next();
 
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token has expired" });
+     if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token has expired", errorType: "TOKEN_EXPIRED" });
     } else if (error.name === "JsonWebTokenError") {
       return res.status(401).json({ message: "Invalid token" });
     }
