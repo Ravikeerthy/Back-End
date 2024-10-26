@@ -19,9 +19,10 @@ export const createExcelReport = async (req, res) => {
 
     workSheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
-      row.fill = {       
+      cell.fill = { 
+        type: "pattern",      
         pattern: "solid",
-        fgColor: { argb: "FFD580" },
+        fgColor: { argb: "ADD8E6" },
       };
     });
     
