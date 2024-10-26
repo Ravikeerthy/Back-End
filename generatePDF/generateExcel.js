@@ -9,13 +9,17 @@ export const createExcelReport = async (req, res) => {
 
     workSheet.columns = [
       { header: "Category", key: "category", width: 15 },
-      { header: "Amount", key: "amount", width: 10 },
+      { header: "Amount", key: "amount", width: 10 },      
+      { header: "Source", key: "source", width: 10 },
+      { header: "Date", key: "date", width: 10 },
+      { header: "Frequency", key: "frequency", width: 10 },
+      { header: "Description", key: "description", width: 10 },
     ];
 
-    workSheet.addRow({ category: "Income", amount: income || 0 });
-    workSheet.addRow({ category: "Expense", amount: expense ||0});
-    workSheet.addRow({ category: "Saving", amount: saving || 0});
-    workSheet.addRow({ category: "Budget", amount: budget || 0});
+    workSheet.addRow({ category: "Income", amount: income.incomeAmount || 0 });
+    workSheet.addRow({ category: "Expense", amount: expense.expenseAmount ||0});
+    workSheet.addRow({ category: "Saving", amount: saving.savingAmount || 0});
+    workSheet.addRow({ category: "Budget", amount: budget.budgetAmount || 0});
 
     const buffer = await workbook.xlsx.writeBuffer();
 
