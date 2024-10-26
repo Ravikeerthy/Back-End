@@ -20,10 +20,10 @@ export const createExcelReport = async (req, res) => {
       workSheet.addRow({
         category: "Income",
         amount: item.incomeAmount || 0,
-        source: item.source || "",
+        source: item.incomeSource || "",
         date: item.date || "",
         frequency: item.frequency || "",
-        description: item.description || "",
+       
       })
     );
 
@@ -31,10 +31,10 @@ export const createExcelReport = async (req, res) => {
       workSheet.addRow({
         category: "Expense",
         amount: item.expenseAmount || 0,
-        source: item.source || "",
+        source: item.expenseCategory || "",
         date: item.date || "",
         frequency: item.frequency || "",
-        description: item.description || "",
+        description: item.expenseDescription || "",
       })
     );
 
@@ -43,9 +43,8 @@ export const createExcelReport = async (req, res) => {
         category: "Saving",
         amount: item.savingAmount || 0,
         source: item.source || "",
-        date: item.date || "",
-        frequency: item.frequency || "",
-        description: item.description || "",
+        date: item.targetDate || "",
+       
       });
     });
 
@@ -54,10 +53,8 @@ export const createExcelReport = async (req, res) => {
       workSheet.addRow({
         category: "Budget",
         amount: item.budgetAmount || 0,
-        source: item.source || "",
-        date: item.date || "",
-        frequency: item.frequency || "",
-        description: item.description || "",
+        source: item.budgetCategory || "",
+        description: item.budgetPeriod || "",
       });
     });
 
