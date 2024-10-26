@@ -4,6 +4,8 @@ import ExcelJS from "exceljs";
 export const createExcelReport = async (req, res) => {
   try {
     const { income, expense, saving, budget } = req.body;
+    console.log("Req Body: ", req.body);
+    
 
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
@@ -19,32 +21,34 @@ export const createExcelReport = async (req, res) => {
 
    
     workSheet.addRow({category:"Income Details"})
-   const incomeDetails = income.forEach((item) =>
+   const incomeDetails = income.forEach((item) =>{
+    console.log("Adding income row:", item);
       workSheet.addRow({
         category: "Income",
-        amount: item.incomeAmount || 0,
-        source: item.incomeSource || "",
+        incomeAmount: item.incomeAmount || 0,
+        incomeSource: item.incomeSource || "",
         date: item.date || "",
         frequency: item.frequency || "",
        
       })
-    );
+  });
 
     console.log("Income Details: ", incomeDetails);
     
     workSheet.addRow({});
     workSheet.addRow({category:"Expense Details"})
 
-    const expenseDetails = expense.forEach((item) =>
+    const expenseDetails = expense.forEach((item) =>{
+      console.log("Adding expense row:", item); 
       workSheet.addRow({
         category: "Expense",
-        amount: item.expenseAmount || 0,
-        source: item.expenseCategory || "",
+        expenseAmount: item.expenseAmount || 0,
+        expenseCategory: item.expenseCategory || "",
         date: item.date || "",
         frequency: item.frequency || "",
-        description: item.expenseDescription || "",
+        expenseDescription: item.expenseDescription || "",
       })
-    );
+  });
 
     console.log("Expense Details: ", expenseDetails);
 
@@ -53,11 +57,12 @@ export const createExcelReport = async (req, res) => {
     workSheet.addRow({category:"Saving Details"})
 
    const savingDetails =  saving.forEach((item) => {
+    console.log("Adding saving row:", item); 
       workSheet.addRow({
         category: "Saving",
-        amount: item.savingAmount || 0,
+        savingAmount: item.savingAmount || 0,
         source: item.source || "",
-        date: item.targetDate || "",
+        targetDate: item.targetDate || "",
        
       });
     });
@@ -67,11 +72,12 @@ export const createExcelReport = async (req, res) => {
     workSheet.addRow({});
     workSheet.addRow({category:"budget Details"})
     const budgetDetails = budget.forEach((item) => {
+      console.log("Adding saving row:", item);
       workSheet.addRow({
         category: "Budget",
-        amount: item.budgetAmount || 0,
-        source: item.budgetCategory || "",
-        description: item.budgetPeriod || "",
+        budgetAmount: item.budgetAmount || 0,
+        budgetCategory: item.budgetCategory || "",
+        budgetPeriod: item.budgetPeriod || "",
       });
     });
     console.log("Budget Details: ", budgetDetails);
@@ -84,6 +90,7 @@ export const createExcelReport = async (req, res) => {
     // workSheet.addRow({ category: "Budget", amount: budget.budgetAmount || 0});
 
     const buffer = await workbook.xlsx.writeBuffer();
+    console.log("Generated Excel buffer:", buffer);
 
     res.setHeader(
       "Content-Disposition",
