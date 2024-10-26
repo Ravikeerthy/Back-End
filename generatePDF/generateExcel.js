@@ -19,6 +19,10 @@ export const createExcelReport = async (req, res) => {
 
     workSheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
+      row.fill = {       
+        pattern: "solid",
+        fgColor: { argb: "FFD580" },
+      };
     });
     
     const addSectionHeader = (title) => {
