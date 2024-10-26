@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 
+
 export const createExcelReport = async (req, res) => {
   try {
     const { income, expense, saving, budget } = req.body;
@@ -9,13 +10,15 @@ export const createExcelReport = async (req, res) => {
 
     workSheet.columns = [
       { header: "Category", key: "category", width: 15 },
-      { header: "Amount", key: "amount", width: 10 },      
-      { header: "Source", key: "source", width: 10 },
-      { header: "Description", key: "description", width: 10 },
-      { header: "Date", key: "date", width: 10 },
-      { header: "Frequency", key: "frequency", width: 10 },
+      { header: "Amount", key: "amount", width: 20 },      
+      { header: "Source", key: "source", width: 20 },
+      { header: "Description", key: "description", width: 20 },
+      { header: "Date", key: "date", width: 20 },
+      { header: "Frequency", key: "frequency", width: 20 },
     ];
 
+   
+    workSheet.addRow({category:"Income Details"})
     income.forEach((item) =>
       workSheet.addRow({
         category: "Income",
@@ -26,6 +29,8 @@ export const createExcelReport = async (req, res) => {
        
       })
     );
+    workSheet.addRow({});
+    workSheet.addRow({category:"Expense Details"})
 
     expense.forEach((item) =>
       workSheet.addRow({
@@ -37,6 +42,8 @@ export const createExcelReport = async (req, res) => {
         description: item.expenseDescription || "",
       })
     );
+    workSheet.addRow({});
+    workSheet.addRow({category:"Saving Details"})
 
     saving.forEach((item) => {
       workSheet.addRow({
@@ -48,7 +55,8 @@ export const createExcelReport = async (req, res) => {
       });
     });
 
-    
+    workSheet.addRow({});
+    workSheet.addRow({category:"budget Details"})
     budget.forEach((item) => {
       workSheet.addRow({
         category: "Budget",
