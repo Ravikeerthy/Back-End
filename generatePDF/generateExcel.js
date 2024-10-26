@@ -1,89 +1,104 @@
 import ExcelJS from "exceljs";
 
-
 export const createExcelReport = async (req, res) => {
   try {
     const { income, expense, saving, budget } = req.body;
     console.log("Req Body: ", req.body);
-    
 
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
 
     workSheet.columns = [
       { header: "Category", key: "category", width: 15 },
-      { header: "Amount", key: "amount", width: 20 },      
+      { header: "Amount", key: "amount", width: 20 },
       { header: "Source", key: "source", width: 20 },
       { header: "Description", key: "description", width: 20 },
       { header: "Date", key: "date", width: 20 },
       { header: "Frequency", key: "frequency", width: 20 },
     ];
 
-   
-    workSheet.addRow({category:"Income Details"})
-   income.forEach((item) =>{
-    console.log("Adding income row:", item);
+    workSheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+    });
+    
+    const addSectionHeader = (title) => {
+      const row = workSheet.addRow({ category: title });
+      row.font = { bold: true, color: { argb: "00000" } };
+      row.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "4F81BD" },
+      };
+      row.alignment = { horizontal: "center" };
+    };
+
+    addSectionHeader("Income Details");
+    income.forEach((item) => {
+      console.log("Adding income row:", item);
       workSheet.addRow({
         category: "Income",
-        amount: item.incomeAmount || 0,
-        source: item.incomeSource || "",
+        amount: item.amount || 0,
+        source: item.source || "",
         date: item.date || "",
         frequency: item.frequency || "",
-       
-      })
-  });
+      });
+    });
+    console.log("Income Details: ", workSheet.getSheetValues());
 
-    
     workSheet.addRow({});
-    workSheet.addRow({category:"Expense Details"})
+    addSectionHeader("Expense Details");
 
-    expense.forEach((item) =>{
-      console.log("Adding expense row:", item); 
+    expense.forEach((item) => {
+      console.log("Adding expense row:", item);
       workSheet.addRow({
         category: "Expense",
-        amount: item.expenseAmount || 0,
-        source: item.expenseCategory || "",
+        amount: item.amount || 0,
+        source: item.source || "",
         date: item.date || "",
         frequency: item.frequency || "",
-        description: item.expenseDescription || "",
-      })
-  });
-
-
-
-    workSheet.addRow({});
-    workSheet.addRow({category:"Saving Details"})
-
-   saving.forEach((item) => {
-    console.log("Adding saving row:", item); 
-      workSheet.addRow({
-        category: "Saving",
-        amount: item.savingAmount || 0,
-        source: item.source || "",
-        date: item.targetDate || "",
-       
+        description: item.description || "",
       });
     });
 
+    workSheet.addRow({});
+    addSectionHeader("Saving Details");
+
+    saving.forEach((item) => {
+      console.log("Adding saving row:", item);
+      workSheet.addRow({
+        category: "Saving",
+        amount: item.amount || 0,
+        source: item.source || "",
+        date: item.date || "",
+      });
+    });
 
     workSheet.addRow({});
-    workSheet.addRow({category:"budget Details"})
-     budget.forEach((item) => {
+    addSectionHeader("Budget Details");
+    budget.forEach((item) => {
       console.log("Adding saving row:", item);
       workSheet.addRow({
         category: "Budget",
-        amount: item.budgetAmount || 0,
-        source: item.budgetCategory || "",
-        date: item.budgetPeriod || "",
+        amount: item.amount || 0,
+        source: item.source || "",
+        date: item.date || "",
       });
     });
 
+    workSheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.getCell("date").numFmt = "mm-dd-yyyy";
+      }
 
-
-    // workSheet.addRow({ category: "Income", amount: income.incomeAmount || 0 });
-    // workSheet.addRow({ category: "Expense", amount: expense.expenseAmount ||0});
-    // workSheet.addRow({ category: "Saving", amount: saving.savingAmount || 0});
-    // workSheet.addRow({ category: "Budget", amount: budget.budgetAmount || 0});
+      if (!rowNumber % 2 === 0 && rowNumber > 1) {
+        row.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "E8EAF6" },
+        };
+      }
+      row.alignment = { horizontal: "center" };
+    });
 
     const buffer = await workbook.xlsx.writeBuffer();
     console.log("Generated Excel buffer:", buffer);
