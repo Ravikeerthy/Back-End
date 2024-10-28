@@ -90,9 +90,10 @@ export const deleteUser = async (req, res) => {
 export const userLogin = async (req, res) => {
   try {
     const { userName, password } = req.body;
+    const lowerCaseUserName = userName.toLowerCase();
     console.log("Login Req Payloads: ", req.body);
     
-    const user = await User.findOne({ userName });
+    const user = await User.findOne({ userName: lowerCaseUserName });
     console.log("After Finding User: ", user);
     
 
