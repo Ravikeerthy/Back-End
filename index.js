@@ -26,7 +26,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors:{
-    origin: "https://finance-and-expense-tracker.netlify.app", 
+    origin: ["https://expense-tracker-finance.netlify.app", "http://localhost:5173"], 
     methods: ["GET", "POST"],
     credentials: true,
   }
