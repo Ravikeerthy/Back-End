@@ -158,7 +158,7 @@ export const reset_password = async (req, res) => {
       },
     });
 
-    const resetURL = `http://localhost:5173/reset/${user._id}/${token}`;
+    const resetURL = `https://expense-tracker-finance.netlify.app/reset/${user._id}/${token}`;
     console.log("Reset Url:", resetURL);
     
     let details = {
