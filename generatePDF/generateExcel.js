@@ -7,8 +7,7 @@ export const createExcelReport = async (req, res) => {
 
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
-
-    workSheet.addRow(["Financial Report"])
+    
 
     workSheet.columns = [
       { header: "Category", key: "category", width: 15 },
@@ -19,7 +18,7 @@ export const createExcelReport = async (req, res) => {
       { header: "Frequency", key: "frequency", width: 20 },
     ];
 
-    workSheet.getRow().eachCell((cell) => {
+    workSheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
       cell.fill = { 
         type: "pattern",      
