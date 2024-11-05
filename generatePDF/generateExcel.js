@@ -8,23 +8,23 @@ export const createExcelReport = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
 
-    // const currentDate = new Date();
-    // const months = [ "January", "February", "March", "April", "May", "June",
-    //   "July", "August", "September", "October", "November", "December"];
+    const currentDate = new Date();
+    const months = [ "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
 
-    //   const monthYear = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+      const monthYear = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
-    //   const titleRow = workSheet.getRow(1);
-    //   titleRow.getCell(1).value = `Financial Report - ${monthYear}`;
-    //   titleRow.font = { size: 20, bold: true };
-    //   titleRow.alignment = { horizontal: "center" };
-    //   titleRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "F79DE5" } };
-    //   workSheet.mergeCells("A1:G1");
+      const titleRow = workSheet.getRow();
+      titleRow.getCell().value = `Financial Report - ${monthYear}`;
+      titleRow.font = { size: 20, bold: true };
+      titleRow.alignment = { horizontal: "center" };
+      titleRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "F79DE5" } };
+      workSheet.mergeCells("A1:G1");
 
-    // workSheet.addRow([])
+    workSheet.addRow([])
 
     workSheet.columns = [
-      {header:"S.No", key:"sNo", width:7},
+      {header:"S.No", key:"sNo", width:15},
       { header: "Category", key: "category", width: 15 },
       { header: "Amount", key: "amount", width: 20 },
       { header: "Source", key: "source", width: 20 },
@@ -33,7 +33,7 @@ export const createExcelReport = async (req, res) => {
       { header: "Frequency", key: "frequency", width: 20 },
     ];
 
-   const headerRow= workSheet.getRow(3);
+   const headerRow= workSheet.getRow();
    headerRow.eachCell((cell) => {
       cell.font = { bold: true };
       cell.fill = { 
