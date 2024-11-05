@@ -14,7 +14,6 @@ export const createExcelReport = async (req, res) => {
 
       const monthYear = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
-
     const titleRow = workSheet.addRow([`Financial Report- ${monthYear}`]);
     titleRow.font = {size:20, bold:true};
     titleRow.alignment = {horizontal:"center"};
@@ -33,7 +32,8 @@ export const createExcelReport = async (req, res) => {
       { header: "Frequency", key: "frequency", width: 20 },
     ];
 
-    workSheet.getRow(3).eachCell((cell) => {
+   const headerRow= workSheet.getRow(3);
+   headerRow.eachCell((cell) => {
       cell.font = { bold: true };
       cell.fill = { 
         type: "pattern",      
