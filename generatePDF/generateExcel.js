@@ -32,7 +32,7 @@ export const createExcelReport = async (req, res) => {
       { header: "Frequency", key: "frequency", width: 20 },
     ];
 
-    workSheet.getRow(1).eachCell((cell) => {
+    workSheet.getRow(3).eachCell((cell) => {
       cell.font = { bold: true };
       cell.fill = { 
         type: "pattern",      
