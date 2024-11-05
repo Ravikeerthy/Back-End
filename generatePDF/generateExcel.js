@@ -14,11 +14,12 @@ export const createExcelReport = async (req, res) => {
 
       const monthYear = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
-    const titleRow = workSheet.addRow([`Financial Report- ${monthYear}`]);
-    titleRow.font = {size:20, bold:true};
-    titleRow.alignment = {horizontal:"center"};
-    titleRow.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"F79DE5"}}
-    workSheet.mergeCells("A1:F1");
+      const titleRow = workSheet.getRow(1);
+      titleRow.getCell(1).value = `Financial Report - ${monthYear}`;
+      titleRow.font = { size: 20, bold: true };
+      titleRow.alignment = { horizontal: "center" };
+      titleRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "F79DE5" } };
+      workSheet.mergeCells("A1:G1");
 
     workSheet.addRow([])
 
@@ -43,7 +44,8 @@ export const createExcelReport = async (req, res) => {
     });
     
     const addSectionHeader = (title) => {
-      const row = workSheet.addRow({ category: title });
+      const row = workSheet.addRow([]);
+      row.getCell(1).value = title;
       row.font = { bold: true, color: { argb: "00000" } };
       row.fill = {
         type: "pattern",
@@ -67,7 +69,7 @@ export const createExcelReport = async (req, res) => {
     });
     console.log("Income Details: ", workSheet.getSheetValues());
 
-    workSheet.addRow({});
+    workSheet.addRow([]);
     addSectionHeader("Expense Details");
 
     expense.forEach((item, index) => {
