@@ -8,23 +8,9 @@ export const createExcelReport = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
 
-    const currentDate = new Date();
-    const months = [ "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"];
-
-      const monthYear = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-
-      const titleRow = workSheet.getRow();
-      titleRow.getCell().value = `Financial Report - ${monthYear}`;
-      titleRow.font = { size: 20, bold: true };
-      titleRow.alignment = { horizontal: "center" };
-      titleRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "F79DE5" } };
-      workSheet.mergeCells("A1:G1");
-
-    workSheet.addRow([])
+    workSheet.addRow(["Financial Report"])
 
     workSheet.columns = [
-      {header:"S.No", key:"sNo", width:15},
       { header: "Category", key: "category", width: 15 },
       { header: "Amount", key: "amount", width: 20 },
       { header: "Source", key: "source", width: 20 },
@@ -33,8 +19,7 @@ export const createExcelReport = async (req, res) => {
       { header: "Frequency", key: "frequency", width: 20 },
     ];
 
-   const headerRow= workSheet.getRow();
-   headerRow.eachCell((cell) => {
+    workSheet.getRow().eachCell((cell) => {
       cell.font = { bold: true };
       cell.fill = { 
         type: "pattern",      
@@ -44,8 +29,7 @@ export const createExcelReport = async (req, res) => {
     });
     
     const addSectionHeader = (title) => {
-      const row = workSheet.addRow([]);
-      row.getCell(1).value = title;
+      const row = workSheet.addRow({ category: title });
       row.font = { bold: true, color: { argb: "00000" } };
       row.fill = {
         type: "pattern",
@@ -56,10 +40,9 @@ export const createExcelReport = async (req, res) => {
     };
 
     addSectionHeader("Income Details");
-    income.forEach((item, index) => {
+    income.forEach((item) => {
       console.log("Adding income row:", item);
       workSheet.addRow({
-        sNo: index + 1,
         category: "Income",
         amount: item.amount || 0,
         source: item.source || "",
@@ -69,13 +52,12 @@ export const createExcelReport = async (req, res) => {
     });
     console.log("Income Details: ", workSheet.getSheetValues());
 
-    workSheet.addRow([]);
+    workSheet.addRow({});
     addSectionHeader("Expense Details");
 
-    expense.forEach((item, index) => {
+    expense.forEach((item) => {
       console.log("Adding expense row:", item);
       workSheet.addRow({
-        sNo: index + 1,
         category: "Expense",
         amount: item.amount || 0,
         source: item.source || "",
@@ -88,10 +70,9 @@ export const createExcelReport = async (req, res) => {
     workSheet.addRow({});
     addSectionHeader("Saving Details");
 
-    saving.forEach((item, index) => {
+    saving.forEach((item) => {
       console.log("Adding saving row:", item);
       workSheet.addRow({
-        sNo: index + 1,
         category: "Saving",
         amount: item.amount || 0,
         source: item.source || "",
@@ -101,10 +82,9 @@ export const createExcelReport = async (req, res) => {
 
     workSheet.addRow({});
     addSectionHeader("Budget Details");
-    budget.forEach((item, index) => {
+    budget.forEach((item) => {
       console.log("Adding saving row:", item);
       workSheet.addRow({
-        sNo: index + 1,
         category: "Budget",
         amount: item.amount || 0,
         source: item.source || "",
