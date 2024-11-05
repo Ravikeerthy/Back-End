@@ -19,11 +19,12 @@ export const createExcelReport = async (req, res) => {
     titleRow.font = {size:20, bold:true};
     titleRow.alignment = {horizontal:"center"};
     titleRow.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"F79DE5"}}
-    workSheet.mergeCells("A1", "F1");
+    workSheet.mergeCells("A1:F1");
 
     workSheet.addRow([])
 
     workSheet.columns = [
+      {header:"S.No", key:"sNo", width:7},
       { header: "Category", key: "category", width: 15 },
       { header: "Amount", key: "amount", width: 20 },
       { header: "Source", key: "source", width: 20 },
@@ -53,9 +54,10 @@ export const createExcelReport = async (req, res) => {
     };
 
     addSectionHeader("Income Details");
-    income.forEach((item) => {
+    income.forEach((item, index) => {
       console.log("Adding income row:", item);
       workSheet.addRow({
+        sNo: index + 1,
         category: "Income",
         amount: item.amount || 0,
         source: item.source || "",
@@ -68,9 +70,10 @@ export const createExcelReport = async (req, res) => {
     workSheet.addRow({});
     addSectionHeader("Expense Details");
 
-    expense.forEach((item) => {
+    expense.forEach((item, index) => {
       console.log("Adding expense row:", item);
       workSheet.addRow({
+        sNo: index + 1,
         category: "Expense",
         amount: item.amount || 0,
         source: item.source || "",
@@ -83,9 +86,10 @@ export const createExcelReport = async (req, res) => {
     workSheet.addRow({});
     addSectionHeader("Saving Details");
 
-    saving.forEach((item) => {
+    saving.forEach((item, index) => {
       console.log("Adding saving row:", item);
       workSheet.addRow({
+        sNo: index + 1,
         category: "Saving",
         amount: item.amount || 0,
         source: item.source || "",
@@ -95,9 +99,10 @@ export const createExcelReport = async (req, res) => {
 
     workSheet.addRow({});
     addSectionHeader("Budget Details");
-    budget.forEach((item) => {
+    budget.forEach((item, index) => {
       console.log("Adding saving row:", item);
       workSheet.addRow({
+        sNo: index + 1,
         category: "Budget",
         amount: item.amount || 0,
         source: item.source || "",
