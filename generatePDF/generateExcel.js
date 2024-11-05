@@ -8,6 +8,21 @@ export const createExcelReport = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const workSheet = workbook.addWorksheet("Financial Report");
 
+    const currentDate = new Date();
+    const months = [ "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
+
+      const monthYear = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+
+    const titleRow = workSheet.addRow([`Financial Report- ${monthYear}`]);
+    titleRow.font = {size:20, bold:true};
+    titleRow.alignment = {horizontal:true};
+    titleRow.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"F79DE5"}}
+    workSheet.mergeCells("A1", "F1");
+
+    workSheet.addRow([])
+
     workSheet.columns = [
       { header: "Category", key: "category", width: 15 },
       { header: "Amount", key: "amount", width: 20 },
