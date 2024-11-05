@@ -17,7 +17,7 @@ export const createExcelReport = async (req, res) => {
 
     const titleRow = workSheet.addRow([`Financial Report- ${monthYear}`]);
     titleRow.font = {size:20, bold:true};
-    titleRow.alignment = {horizontal:true};
+    titleRow.alignment = {horizontal:"center"};
     titleRow.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"F79DE5"}}
     workSheet.mergeCells("A1", "F1");
 
